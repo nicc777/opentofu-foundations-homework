@@ -19,5 +19,35 @@ Observations / Learnings:
 * AWS CloudTrail was instrumental in tracking down sources of failures. Initially I had a very basic resource definition for the secret and when the resources was re-created after some changes, it failed because the resource was still being deleted on AWS side. I updated `aws_secretsmanager_secret` with additional arguments to make replacing easier and more instant.
 * The current solution does not cater for Password Rotation, as there is no easy way to do this with the current set-up. I would like to solve this at some later point, but for now I will just first see how the course proceeds - perhaps there is something about this later.
 
+Basic shell history:
+
+```shell
+# Assuming the repo is checked out and the current working directory is the root of the project
+
+# First, set the alias to tofu to where ever the binary is
+alias t=...
+
+# Init
+cd week-1/code
+t init
+
+# Setup some environment variables
+export AWS_PROFILE=...
+export TF_VAR_trusted_cidrs_for_wordpress_access="[ \"`dig +short txt ch whoami.cloudflare @1.0.0.1 | tr -d '\"' | awk '{print $1\"/32\"}'`\" ]"
+
+# Apply
+t plan -var-file=my_variables.tfvars -out=my_plan
+t apply "my_plan"
+```
+
+Current contents of `my_variables.tfvars`:
+
+```text
+name_prefix = "test1"
+image = {
+    name = "wordpress"
+    tag = "latest"
+}
+```
 
 

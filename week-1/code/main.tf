@@ -6,11 +6,15 @@ data "aws_vpc" "default" {
 }
 
 data "aws_secretsmanager_random_password" "this" {
-  password_length = 50
+  # RDS password has a max limit of 41 characters - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Limits.html#RDS_Limits.Constraints
+  password_length = 40
   exclude_punctuation = true
 }
 
 data "aws_secretsmanager_secret_version" "this" {
+  depends_on = [
+    aws_secretsmanager_secret_version.this
+  ]
   secret_id = aws_secretsmanager_secret.this.id
 }
 
@@ -43,7 +47,10 @@ resource "aws_instance" "this" {
 }
 
 resource "aws_secretsmanager_secret" "this" {
-  name = "wordpress_db_password"
+  name = "wordpress_master_db_password"
+  description = "Master password for wordpress database"
+  recovery_window_in_days = 0
+  force_overwrite_replica_secret = true
 }
 
 resource "aws_secretsmanager_secret_version" "this" {

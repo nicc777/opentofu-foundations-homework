@@ -1,4 +1,10 @@
-# opentofu-foundations-homework
+
+
+- [Progress](#progress)
+  - [Week 1](#week-1)
+    - [Getting the EC2 instance DNS name:](#getting-the-ec2-instance-dns-name)
+    - [DB Access:](#db-access)
+
 
 Homework from https://github.com/massdriver-cloud/opentofu-foundations
 

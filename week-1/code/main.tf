@@ -58,8 +58,10 @@ resource "aws_launch_template" "wordpress" {
   }
   network_interfaces {
     associate_public_ip_address = true
+    security_groups = [aws_security_group.wordpress.id]
+    subnet_id                   = "${data.aws_subnet.this.id}"
   }
-  vpc_security_group_ids = [aws_security_group.wordpress.id]
+  # vpc_security_group_ids = [aws_security_group.wordpress.id]
   tag_specifications {
     resource_type = "instance"
 
@@ -97,7 +99,7 @@ data "aws_subnet" "this" {
 resource "aws_autoscaling_group" "this" {
   launch_template {
     id         = aws_launch_template.wordpress.id
-    version    = "$Latest"
+    version    = "${aws_launch_template.wordpress.latest_version}"
   }
   min_size    = 1
   max_size    = 1

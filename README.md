@@ -76,10 +76,11 @@ sh ./get_instance_dns.sh
 
 DB Access:
 
-Get the hostname from the OpenTofu output and the password from secrets manager and connect:
+Get the hostname and DB username from the OpenTofu output and the password from secrets manager and connect:
 
 ```shell
 export DB_HOST=....
-podman run -it --rm mariadb mariadb --host $DB_HOST --user admin --password --database wordpress
+export DB_USERNAME=...
+podman run -it --rm mariadb mariadb --host $DB_HOST --user $DB_USERNAME --password --database wordpress
 ```
 

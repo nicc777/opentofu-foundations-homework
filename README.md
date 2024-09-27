@@ -32,6 +32,9 @@ Observations / Learnings:
 * Using the [`count` Meta-Argument](https://opentofu.org/docs/language/meta-arguments/count/), I can create the DB public access based on a boolean value, regardless of the trusted public IP address I provided. This is really cool for deciding to create a resource or not - in this case choosing to create the security group to allow access from the trusted CIDR.
 * It feels like the subnet selection could be better, but I have not really found the solution I'm more happy with yet. Ideally, the VPC will also be crated by OpenTofu, which will make automatic subnet selection a lot easier.
 * In the current configuration, anytime something changes that requires the plan to be updated, the DB credentials change. I have not figured out exactly what the root cause of this behavior is.
+* I decided to populate two variables at runtime using environment variables. Here are my reasons:
+  * Variable `trusted_cidrs_for_wordpress_access` - my public IP address could change, but it should remain stable at least for a day, so I guess using a small shell one-liner to create an environment variable is the easiest solution here that avoids manually visiting a website every time and manually updating a file.
+  * Variable `ssh_keypair_name` is an environment variable simply because I want to disclose as little as possible information around anything related to private keys.
 
 Basic shell history:
 
@@ -68,7 +71,7 @@ image = {
 }
 ```
 
-Getting the EC2 instance data:
+### Getting the EC2 instance DNS name:
 
 ```shell
 sh ./get_instance_dns.sh
@@ -77,7 +80,7 @@ sh ./get_instance_dns.sh
 > [!NOTE]  
 > OpenTofu does not directly create the instances, and it is therefore better to use the AWS CLI to get the public DNS entry for the instance
 
-DB Access:
+### DB Access:
 
 Get the hostname and DB username from the OpenTofu output and the password from secrets manager and connect:
 

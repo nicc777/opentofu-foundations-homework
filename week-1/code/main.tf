@@ -84,7 +84,7 @@ resource "aws_launch_template" "wordpress" {
   )
 }
 
-# Get a list of all public subnets in the VPC
+# Using the default VPC, ensure at least one public subnet has a tagged named "experimental" with a value of "1""
 data "aws_subnet" "this" {
   vpc_id = data.aws_vpc.default.id
   filter {
@@ -93,7 +93,6 @@ data "aws_subnet" "this" {
   }
   
 }
-
 
 resource "aws_autoscaling_group" "this" {
   launch_template {

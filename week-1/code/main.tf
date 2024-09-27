@@ -42,6 +42,10 @@ resource "aws_iam_role" "this" {
   assume_role_policy = data.aws_iam_policy_document.this.json
 }
 
+resource "random_pet" "db_username" {
+  length = 1
+}
+
 resource "aws_launch_template" "wordpress" {
   name = "wordpress-lt"
   iam_instance_profile {
@@ -61,7 +65,6 @@ resource "aws_launch_template" "wordpress" {
     security_groups = [aws_security_group.wordpress.id]
     subnet_id                   = "${data.aws_subnet.this.id}"
   }
-  # vpc_security_group_ids = [aws_security_group.wordpress.id]
   tag_specifications {
     resource_type = "instance"
 
@@ -78,7 +81,7 @@ resource "aws_launch_template" "wordpress" {
       usermod -a -G docker ec2-user
       docker run -d \
         -e WORDPRESS_DB_HOST=${aws_db_instance.this.endpoint} \
-        -e WORDPRESS_DB_USER=admin \
+        -e WORDPRESS_DB_USER=${random_pet.db_username.id} \
         -e WORDPRESS_DB_PASSWORD=${data.aws_secretsmanager_secret_version.this.secret_string} \
         -e WORDPRESS_DB_NAME=wordpress \
         -p 80:80 ${var.image.name}:${var.image.tag}
@@ -133,7 +136,7 @@ resource "aws_db_instance" "this" {
   engine_version = "10.6"
 
   db_name  = "wordpress"
-  username = "admin"
+  username = "${random_pet.db_username.id}"
 
   password               = data.aws_secretsmanager_secret_version.this.secret_string
   publicly_accessible    = var.enable_public_mariadb_access

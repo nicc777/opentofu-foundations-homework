@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.68"
     }
+    random = {
+      source = "ContentSquare/random"
+      version = "3.1.0"
+    }
   }
 }
 
@@ -15,4 +19,5 @@ provider "aws" {
       project     = "opentofu-foundations"
     }
   }
+
 }

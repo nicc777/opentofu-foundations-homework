@@ -22,6 +22,8 @@ Observations / Learnings:
   * [SecretsManager Resource](https://library.tf/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret)
   * [SecurityGroup Resource](https://library.tf/providers/hashicorp/aws/latest/docs/resources/security_group)
   * [EC2 Instance Resource](https://library.tf/providers/hashicorp/aws/latest/docs/resources/instance)
+  * [EC2 Launch Template](https://library.tf/providers/hashicorp/aws/latest/docs/resources/launch_template)
+  * [AutoScaling Group](https://library.tf/providers/hashicorp/aws/latest/docs/resources/autoscaling_group)
 * Discoverd once again that limits are not always what you would think, for example MariaDB RDS maximum password length is 41 characters.
 * AWS CloudTrail was instrumental in tracking down sources of failures. Initially I had a very basic resource definition for the secret and when the resources was re-created after some changes, it failed because the resource was still being deleted on AWS side. I updated `aws_secretsmanager_secret` with additional arguments to make replacing easier and more instant.
 * The current solution does not cater for Password Rotation, as there is no easy way to do this with the current set-up. I would like to solve this at some later point, but for now I will just first see how the course proceeds - perhaps there is something about this later.
@@ -61,6 +63,18 @@ image = {
     tag = "latest"
 }
 ```
+
+Getting the EC2 instance data:
+
+```shell
+for ID in $(aws autoscaling describe-auto-scaling-instances --region us-west-2 --query AutoScalingInstances[].InstanceId --output text);
+do
+    aws ec2 describe-instances --instance-ids $ID --region us-west-2 --query Reservations[].Instances[].PublicDnsName --output text
+done
+```
+
+> [!NOTE]  
+> OpenTofu does not directly create the instances, and it is therefore better to use the AWS CLI to get the public DNS entry for the instance
 
 DB Access:
 

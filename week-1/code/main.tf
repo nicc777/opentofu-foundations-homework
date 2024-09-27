@@ -18,33 +18,92 @@ data "aws_secretsmanager_secret_version" "this" {
   secret_id = aws_secretsmanager_secret.this.id
 }
 
-resource "aws_instance" "this" {
-  ami                    = "ami-08578967e04feedea"
-  vpc_security_group_ids = [aws_security_group.wordpress.id]
+resource "aws_iam_instance_profile" "this" {
+  name = "wordpress_profile"
+  role = aws_iam_role.this.name
+}
 
-  # Free Tier: t2.micro 750 hours / month - 12 months
-  instance_type               = "t2.micro"
-  associate_public_ip_address = true
-  key_name = var.ssh_keypair_name
+data "aws_iam_policy_document" "this" {
+  statement {
+    effect = "Allow"
 
-  tags = {
-    Name = var.name_prefix
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
   }
+}
 
-  user_data = <<-EOF
-              #!/bin/bash
-              yum update -y
-              amazon-linux-extras install docker -y
-              service docker start
-              usermod -a -G docker ec2-user
-              docker run -d \
-                -e WORDPRESS_DB_HOST=${aws_db_instance.this.endpoint} \
-                -e WORDPRESS_DB_USER=admin \
-                -e WORDPRESS_DB_PASSWORD=${data.aws_secretsmanager_secret_version.this.secret_string} \
-                -e WORDPRESS_DB_NAME=wordpress \
-                -p 80:80 ${var.image.name}:${var.image.tag}
+resource "aws_iam_role" "this" {
+  name               = "wordpress_role"
+  path               = "/"
+  assume_role_policy = data.aws_iam_policy_document.this.json
+}
 
-              EOF
+resource "aws_launch_template" "wordpress" {
+  name = "wordpress-lt"
+  iam_instance_profile {
+    name = aws_iam_instance_profile.this.name
+  }
+  image_id = "ami-08578967e04feedea"
+  instance_type = "t2.micro"
+  key_name = var.ssh_keypair_name
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+    instance_metadata_tags      = "enabled"
+  }
+  network_interfaces {
+    associate_public_ip_address = true
+  }
+  vpc_security_group_ids = [aws_security_group.wordpress.id]
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = {
+      Name = "${var.name_prefix}-wordpress"
+    }
+  }
+  user_data = base64encode(
+    <<-EOF
+      #!/bin/bash
+      yum update -y
+      amazon-linux-extras install docker -y
+      service docker start
+      usermod -a -G docker ec2-user
+      docker run -d \
+        -e WORDPRESS_DB_HOST=${aws_db_instance.this.endpoint} \
+        -e WORDPRESS_DB_USER=admin \
+        -e WORDPRESS_DB_PASSWORD=${data.aws_secretsmanager_secret_version.this.secret_string} \
+        -e WORDPRESS_DB_NAME=wordpress \
+        -p 80:80 ${var.image.name}:${var.image.tag}
+    EOF
+  )
+}
+
+# Get a list of all public subnets in the VPC
+data "aws_subnet" "this" {
+  vpc_id = data.aws_vpc.default.id
+  filter {
+    name = "tag:experimental"
+    values = [ "1" ]
+  }
+  
+}
+
+
+resource "aws_autoscaling_group" "this" {
+  launch_template {
+    id         = aws_launch_template.wordpress.id
+    version    = "$Latest"
+  }
+  min_size    = 1
+  max_size    = 1
+  desired_capacity = 1
+  vpc_zone_identifier = [data.aws_subnet.this.id]
 }
 
 resource "aws_secretsmanager_secret" "this" {

@@ -76,7 +76,7 @@ resource "aws_db_instance" "this" {
   username = "admin"
 
   password               = data.aws_secretsmanager_secret_version.this.secret_string
-  publicly_accessible    = length(var.enable_public_mariadb_access) != 0
+  publicly_accessible    = var.enable_public_mariadb_access
   vpc_security_group_ids = [aws_security_group.mariadb.id]
   skip_final_snapshot    = true
 }

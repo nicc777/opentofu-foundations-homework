@@ -43,6 +43,9 @@ export AWS_PROFILE=...
 export TF_VAR_trusted_cidrs_for_wordpress_access="`dig +short txt ch whoami.cloudflare @1.0.0.1 | tr -d '\"' | awk '{print $1\"/32\"}'`"
 export TF_VAR_ssh_keypair_name="...."
 
+# Optionally, if you want to access the DB from your local machine
+export TF_VAR_enable_public_mariadb_access=true
+
 # Apply
 t plan -var-file=my_variables.tfvars -out=my_plan
 t apply "my_plan"
@@ -58,4 +61,12 @@ image = {
 }
 ```
 
+DB Access:
+
+Get the hostname from the OpenTofu output and the password from secrets manager and connect:
+
+```shell
+export DB_HOST=....
+podman run -it --rm mariadb mariadb --host $DB_HOST --user admin --password --database wordpress
+```
 

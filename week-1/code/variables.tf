@@ -17,12 +17,12 @@ variable "image" {
   }
 }
 
-# If you want to connect to the database, you can add your IP address here and run the following command:
+# If you want to connect to the database, set this to true
 # docker run -it --rm mariadb mariadb -u admin -p --skip-ssl -h <RDS_HOSTNAME>
 variable "enable_public_mariadb_access" {
   description = "A list of CIDR blocks to permit public MariaDB access. Set to your IP CIDR block to enable (https://www.whatismyip.com/)"
-  type        = list(string)
-  default     = []
+  type        = bool
+  default     = false
 }
 
 variable "trusted_cidrs_for_wordpress_access" {

@@ -130,6 +130,7 @@ resource "aws_vpc_security_group_ingress_rule" "rds_allow_maria_db_ipv4_app" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "rds_allow_maria_db_ipv4_trusted" {
+  count             = var.enable_public_mariadb_access ? 1 : 0
   security_group_id = aws_security_group.mariadb.id
   cidr_ipv4         = var.trusted_cidrs_for_wordpress_access
   from_port         = 3306

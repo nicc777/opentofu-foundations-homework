@@ -20,7 +20,7 @@ variable "image" {
 # If you want to connect to the database, set this to true
 # docker run -it --rm mariadb mariadb -u admin -p --skip-ssl -h <RDS_HOSTNAME>
 variable "enable_public_mariadb_access" {
-  description = "A list of CIDR blocks to permit public MariaDB access. Set to your IP CIDR block to enable (https://www.whatismyip.com/)"
+  description = "Indicator if you need public access"
   type        = bool
   default     = false
 }

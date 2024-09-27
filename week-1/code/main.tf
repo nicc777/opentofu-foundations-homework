@@ -25,6 +25,7 @@ resource "aws_instance" "this" {
   # Free Tier: t2.micro 750 hours / month - 12 months
   instance_type               = "t2.micro"
   associate_public_ip_address = true
+  key_name = var.ssh_keypair_name
 
   tags = {
     Name = var.name_prefix
@@ -83,33 +84,61 @@ resource "aws_db_instance" "this" {
 resource "aws_security_group" "wordpress" {
   name        = "${var.name_prefix}-wordpress"
   description = "Allow HTTP inbound traffic"
-
-  ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = var.trusted_cidrs_for_wordpress_access
+  vpc_id      = data.aws_vpc.default.id
+  tags = {
+    Name = "wordpress_server_access"
   }
+}
 
-  # Needs to be able to get to docker hub to download images
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_ingress_rule" "wordpress_allow_http_ipv4" {
+  security_group_id = aws_security_group.wordpress.id
+  cidr_ipv4         = var.trusted_cidrs_for_wordpress_access
+  from_port         = 80
+  ip_protocol       = "tcp"
+  to_port           = 80
+}
+
+resource "aws_vpc_security_group_ingress_rule" "wordpress_allow_ssh_ipv4" {
+  security_group_id = aws_security_group.wordpress.id
+  cidr_ipv4         = var.trusted_cidrs_for_wordpress_access
+  from_port         = 22
+  ip_protocol       = "tcp"
+  to_port           = 22
+}
+
+resource "aws_vpc_security_group_egress_rule" "wordpress_allow_all_traffic_ipv4" {
+  security_group_id = aws_security_group.wordpress.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
 }
 
 resource "aws_security_group" "mariadb" {
   name        = "${var.name_prefix}-mariadb"
   description = "Allow access to MariaDB"
-
-  ingress {
-    from_port = 3306
-    to_port   = 3306
-    protocol  = "tcp"
-
-    cidr_blocks = concat([data.aws_vpc.default.cidr_block], var.enable_public_mariadb_access)
+  vpc_id      = data.aws_vpc.default.id
+  tags = {
+    Name = "wordpress_db_access"
   }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "rds_allow_maria_db_ipv4_app" {
+  security_group_id = aws_security_group.mariadb.id
+  cidr_ipv4         = data.aws_vpc.default.cidr_block
+  from_port         = 3306
+  to_port           = 3306
+  ip_protocol       = "tcp"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "rds_allow_maria_db_ipv4_trusted" {
+  security_group_id = aws_security_group.mariadb.id
+  cidr_ipv4         = var.trusted_cidrs_for_wordpress_access
+  from_port         = 3306
+  to_port           = 3306
+  ip_protocol       = "tcp"
+}
+
+resource "aws_vpc_security_group_egress_rule" "rds_allow_all_traffic_ipv4" {
+  security_group_id = aws_security_group.mariadb.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
 }

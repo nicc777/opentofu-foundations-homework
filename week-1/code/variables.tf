@@ -27,8 +27,13 @@ variable "enable_public_mariadb_access" {
 
 variable "trusted_cidrs_for_wordpress_access" {
   # Use Environment variable with:
-  # $ export TF_VAR_trusted_cidrs_for_wordpress_access="[ \"`dig +short txt ch whoami.cloudflare @1.0.0.1 | tr -d '\"' | awk '{print $1\"/32\"}'`\" ]"
-  description = "A list of trusted CIDR's to allow HTTP access to the WordPress server."
-  type        = list(string)
-  default     = [ "0.0.0.0/0" ]
+  # $ export TF_VAR_trusted_cidrs_for_wordpress_access="`dig +short txt ch whoami.cloudflare @1.0.0.1 | tr -d '\"' | awk '{print $1\"/32\"}'`"
+  description = "A trusted CIDR's to allow HTTP access to the WordPress server."
+  type        = string
+  default     = "0.0.0.0/0"
+}
+
+variable "ssh_keypair_name" {
+  description = "The SSH keypair name for SSH access to the instance"
+  type        = string
 }

@@ -6,6 +6,10 @@ Homework from https://github.com/massdriver-cloud/opentofu-foundations
 
 ## Week 1
 
+Prep:
+
+* In AWS EC2 console, create a SSH key pair for SSH access to the wordpress server. An alternative could be to use the [key_pair](https://library.tf/providers/hashicorp/aws/latest/docs/resources/key_pair) resource to create a key pair, but that would also require some local script to generate the secret key and export the public key material for use in as a variable input.
+
 Changes:
 
 * Added AWS SecretsManager to store DB password
@@ -14,7 +18,10 @@ Changes:
 
 Observations / Learnings:
 
-* Used https://library.tf/ for documentation on the AWS provider, for example how to create [a SecretsManager Resource](https://library.tf/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret)
+* Used https://library.tf/ for documentation on the AWS provider. Useful links:
+  * [SecretsManager Resource](https://library.tf/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret)
+  * [SecurityGroup Resource](https://library.tf/providers/hashicorp/aws/latest/docs/resources/security_group)
+  * [EC2 Instance Resource](https://library.tf/providers/hashicorp/aws/latest/docs/resources/instance)
 * Discoverd once again that limits are not always what you would think, for example MariaDB RDS maximum password length is 41 characters.
 * AWS CloudTrail was instrumental in tracking down sources of failures. Initially I had a very basic resource definition for the secret and when the resources was re-created after some changes, it failed because the resource was still being deleted on AWS side. I updated `aws_secretsmanager_secret` with additional arguments to make replacing easier and more instant.
 * The current solution does not cater for Password Rotation, as there is no easy way to do this with the current set-up. I would like to solve this at some later point, but for now I will just first see how the course proceeds - perhaps there is something about this later.
@@ -33,7 +40,8 @@ t init
 
 # Setup some environment variables
 export AWS_PROFILE=...
-export TF_VAR_trusted_cidrs_for_wordpress_access="[ \"`dig +short txt ch whoami.cloudflare @1.0.0.1 | tr -d '\"' | awk '{print $1\"/32\"}'`\" ]"
+export TF_VAR_trusted_cidrs_for_wordpress_access="`dig +short txt ch whoami.cloudflare @1.0.0.1 | tr -d '\"' | awk '{print $1\"/32\"}'`"
+export TF_VAR_ssh_keypair_name="...."
 
 # Apply
 t plan -var-file=my_variables.tfvars -out=my_plan

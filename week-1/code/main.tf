@@ -13,7 +13,7 @@ data "aws_secretsmanager_random_password" "this" {
 
 data "aws_secretsmanager_secret_version" "this" {
   depends_on = [
-    aws_secretsmanager_secret_version.this
+    aws_secretsmanager_secret.this
   ]
   secret_id = aws_secretsmanager_secret.this.id
 }
@@ -108,6 +108,11 @@ resource "aws_autoscaling_group" "this" {
   max_size    = 1
   desired_capacity = 1
   vpc_zone_identifier = [data.aws_subnet.this.id]
+  tag {
+    key                 = "project"
+    value               = "${var.name_prefix}-wordpress"
+    propagate_at_launch = true
+  }
 }
 
 resource "aws_secretsmanager_secret" "this" {

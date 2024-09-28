@@ -108,6 +108,13 @@ resource "aws_autoscaling_group" "this" {
   max_size    = 1
   desired_capacity = 1
   vpc_zone_identifier = [data.aws_subnet.this.id]
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      skip_matching = true
+    }
+    triggers = ["launch_template"]
+  }
   tag {
     key                 = "project"
     value               = "${var.name_prefix}-wordpress"
@@ -154,7 +161,7 @@ resource "aws_security_group" "wordpress" {
   description = "Allow HTTP inbound traffic"
   vpc_id      = data.aws_vpc.default.id
   tags = {
-    Name = "wordpress_server_access"
+    Name = "${var.name_prefix}-wordpress_server_access"
   }
 }
 

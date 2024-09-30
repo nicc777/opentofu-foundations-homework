@@ -44,7 +44,7 @@ Homework from https://github.com/massdriver-cloud/opentofu-foundations
 * In the current configuration, anytime something changes that requires the plan to be updated, the DB credentials change. ~~I have not figured out exactly what the root cause of this behavior is~~.
   * It seems this is by design and there is [an open issue of GitHub](https://github.com/hashicorp/terraform-provider-aws/issues/28733).
   * I had to add a trigger argument to the Auto Scaling group in order to force an instance refresh whenever the DB credentials are updated. The current implementation is not ideal in my opinion, as users may experience downtime during the initial instance refresh until all instances can have the updated credentials. It is still better that my initial configuration.
-* I decided to populate two variables at runtime using environment variables. Here are my reasons:
+* I decided to populate some variables at runtime using environment variables. Here are my reasons:
   * Variable `trusted_cidrs_for_wordpress_access` - my public IP address could change, but it should remain stable at least for a day, so I guess using a small shell one-liner to create an environment variable is the easiest solution here that avoids manually visiting a website every time and manually updating a file.
   * Variable `ssh_keypair_name` is an environment variable simply because I want to disclose as little as possible information around anything related to private keys.
   * Variable `enable_public_mariadb_access` could be considered very dynamic and could change between update cycles.

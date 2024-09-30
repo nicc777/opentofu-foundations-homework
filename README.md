@@ -2,6 +2,9 @@
 
 - [Progress](#progress)
   - [Week 1](#week-1)
+    - [Preparations](#preparations)
+    - [Various other Changes or Improvements](#various-other-changes-or-improvements)
+    - [Observations / Learnings](#observations--learnings)
     - [Getting the EC2 instance DNS name:](#getting-the-ec2-instance-dns-name)
     - [DB Access:](#db-access)
 
@@ -12,18 +15,19 @@ Homework from https://github.com/massdriver-cloud/opentofu-foundations
 
 ## Week 1
 
-Prep:
+### Preparations
 
 * In AWS EC2 console, create a SSH key pair for SSH access to the wordpress server. An alternative could be to use the [key_pair](https://library.tf/providers/hashicorp/aws/latest/docs/resources/key_pair) resource to create a key pair, but that would also require some local script to generate the secret key and export the public key material for use in as a variable input.
 * In the default VPC, tag at least one public `subnet` with a tag named `experimental` and a value of `1`.
 
-Changes:
+### Various other Changes or Improvements
 
 * Added AWS SecretsManager to store DB password
 * Used AWS SecretsManager secret value in the creation of EC2 and RDS resources
 * Added a variable for the HTTP ingress in order to limit it to only my public IP address
+* Added selection of AWS EC2 AMI and removed hard coded AMI
 
-Observations / Learnings:
+### Observations / Learnings
 
 * Used https://library.tf/ for documentation on the AWS provider. Useful links:
   * [SecretsManager Resource](https://library.tf/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret)
@@ -37,6 +41,7 @@ Observations / Learnings:
 * The current solution does not cater for Password Rotation, as there is no easy way to do this with the current set-up. I would like to solve this at some later point, but for now I will just first see how the course proceeds - perhaps there is something about this later.
 * Using the [`count` Meta-Argument](https://opentofu.org/docs/language/meta-arguments/count/), I can create the DB public access based on a boolean value, regardless of the trusted public IP address I provided. This is really cool for deciding to create a resource or not - in this case choosing to create the security group to allow access from the trusted CIDR.
 * It feels like the subnet selection could be better, but I have not really found the solution I'm more happy with yet. Ideally, the VPC will also be crated by OpenTofu, which will make automatic subnet selection a lot easier.
+  * _*UPDATE*_: Following [this post](https://daringway.com/how-to-select-one-random-aws-subnet-in-terraform/) I was able to adapt the example to now select a random subnet. However, the `aws_subnet_ids` section is deprecated and replaced with [`aws_subnets`](https://library.tf/providers/hashicorp/aws/latest/docs/data-sources/subnets)
 * In the current configuration, anytime something changes that requires the plan to be updated, the DB credentials change. ~~I have not figured out exactly what the root cause of this behavior is~~.
   * It seems this is by design and there is [an open issue of GitHub](https://github.com/hashicorp/terraform-provider-aws/issues/28733).
   * I had to add a trigger argument to the Auto Scaling group in order to force an instance refresh whenever the DB credentials are updated. The current implementation is not ideal in my opinion, as users may experience downtime during the initial instance refresh until all instances can have the updated credentials. It is still better that my initial configuration.

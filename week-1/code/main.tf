@@ -1,8 +1,41 @@
 data "aws_vpc" "default" {
   filter {
-    name   = "isDefault"
+    name = "isDefault"
     values = ["true"]
   }
+}
+
+data aws_subnets current {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+data aws_ami current {
+  most_recent = true
+
+  filter {
+    name = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  # Use Amazon Linux 2 AMI (HVM) SSD Volume Type
+  name_regex = "^amzn2-ami-hvm-.*x86_64-gp2"
+  owners = ["137112412989"] # Amazon
+}
+
+resource random_id index {
+  byte_length = 2
+}
+
+# Select a random subnet
+locals {
+  subnet_ids_list = tolist(data.aws_subnets.current.ids)
+  
+  subnet_ids_random_index = random_id.index.dec % length(data.aws_subnets.current.ids)
+  
+  instance_subnet_id = local.subnet_ids_list[local.subnet_ids_random_index]
 }
 
 data "aws_secretsmanager_random_password" "this" {
@@ -13,7 +46,8 @@ data "aws_secretsmanager_random_password" "this" {
 
 data "aws_secretsmanager_secret_version" "this" {
   depends_on = [
-    aws_secretsmanager_secret.this
+    aws_secretsmanager_secret.this,
+    aws_secretsmanager_secret_version.this
   ]
   secret_id = aws_secretsmanager_secret.this.id
 }
@@ -28,7 +62,7 @@ data "aws_iam_policy_document" "this" {
     effect = "Allow"
 
     principals {
-      type        = "Service"
+      type = "Service"
       identifiers = ["ec2.amazonaws.com"]
     }
 
@@ -37,8 +71,8 @@ data "aws_iam_policy_document" "this" {
 }
 
 resource "aws_iam_role" "this" {
-  name               = "wordpress_role"
-  path               = "/"
+  name = "wordpress_role"
+  path = "/"
   assume_role_policy = data.aws_iam_policy_document.this.json
 }
 
@@ -47,23 +81,26 @@ resource "random_pet" "db_username" {
 }
 
 resource "aws_launch_template" "wordpress" {
+  depends_on = [
+    aws_secretsmanager_secret_version.this
+  ]
   name = "wordpress-lt"
   iam_instance_profile {
     name = aws_iam_instance_profile.this.name
   }
-  image_id = "ami-08578967e04feedea"
-  instance_type = "t2.micro"
+  image_id = data.aws_ami.current.id
+  instance_type = "t3.micro"
   key_name = var.ssh_keypair_name
   metadata_options {
-    http_endpoint               = "enabled"
-    http_tokens                 = "required"
+    http_endpoint = "enabled"
+    http_tokens = "required"
     http_put_response_hop_limit = 1
-    instance_metadata_tags      = "enabled"
+    instance_metadata_tags = "enabled"
   }
   network_interfaces {
     associate_public_ip_address = true
     security_groups = [aws_security_group.wordpress.id]
-    subnet_id                   = "${data.aws_subnet.this.id}"
+    subnet_id = local.instance_subnet_id
   }
   tag_specifications {
     resource_type = "instance"
@@ -89,25 +126,18 @@ resource "aws_launch_template" "wordpress" {
   )
 }
 
-# Using the default VPC, ensure at least one public subnet has a tagged named "experimental" with a value of "1""
-data "aws_subnet" "this" {
-  vpc_id = data.aws_vpc.default.id
-  filter {
-    name = "tag:experimental"
-    values = [ "1" ]
-  }
-  
-}
-
 resource "aws_autoscaling_group" "this" {
+  depends_on = [
+    aws_secretsmanager_secret_version.this
+  ]
   launch_template {
-    id         = aws_launch_template.wordpress.id
-    version    = "${aws_launch_template.wordpress.latest_version}"
+    id = aws_launch_template.wordpress.id
+    version = "${aws_launch_template.wordpress.latest_version}"
   }
-  min_size    = 1
-  max_size    = 1
+  min_size = 1
+  max_size = 1
   desired_capacity = 1
-  vpc_zone_identifier = [data.aws_subnet.this.id]
+  vpc_zone_identifier = [local.instance_subnet_id]
   instance_refresh {
     strategy = "Rolling"
     preferences {
@@ -116,8 +146,8 @@ resource "aws_autoscaling_group" "this" {
     triggers = ["launch_template"]
   }
   tag {
-    key                 = "project"
-    value               = "${var.name_prefix}-wordpress"
+    key = "project"
+    value = "${var.name_prefix}-wordpress"
     propagate_at_launch = true
   }
 }
@@ -130,11 +160,15 @@ resource "aws_secretsmanager_secret" "this" {
 }
 
 resource "aws_secretsmanager_secret_version" "this" {
-  secret_id     = aws_secretsmanager_secret.this.id
+  secret_id = aws_secretsmanager_secret.this.id
   secret_string = data.aws_secretsmanager_random_password.this.random_password
 }
 
 resource "aws_db_instance" "this" {
+  depends_on = [
+    aws_secretsmanager_secret_version.this
+  ]
+
   identifier = var.name_prefix
 
   ### Free Tier: db.t2.micro 750 hours / month - 12 months
@@ -147,19 +181,19 @@ resource "aws_db_instance" "this" {
   # Wordpress 6 https://make.wordpress.org/hosting/handbook/compatibility/
   engine_version = "10.6"
 
-  db_name  = "wordpress"
+  db_name = "wordpress"
   username = "${random_pet.db_username.id}"
 
-  password               = data.aws_secretsmanager_secret_version.this.secret_string
-  publicly_accessible    = var.enable_public_mariadb_access
+  password = data.aws_secretsmanager_secret_version.this.secret_string
+  publicly_accessible = var.enable_public_mariadb_access
   vpc_security_group_ids = [aws_security_group.mariadb.id]
-  skip_final_snapshot    = true
+  skip_final_snapshot = true
 }
 
 resource "aws_security_group" "wordpress" {
-  name        = "${var.name_prefix}-wordpress"
+  name = "${var.name_prefix}-wordpress"
   description = "Allow HTTP inbound traffic"
-  vpc_id      = data.aws_vpc.default.id
+  vpc_id = data.aws_vpc.default.id
   tags = {
     Name = "${var.name_prefix}-wordpress_server_access"
   }
@@ -167,30 +201,30 @@ resource "aws_security_group" "wordpress" {
 
 resource "aws_vpc_security_group_ingress_rule" "wordpress_allow_http_ipv4" {
   security_group_id = aws_security_group.wordpress.id
-  cidr_ipv4         = var.trusted_cidrs_for_wordpress_access
-  from_port         = 80
-  ip_protocol       = "tcp"
-  to_port           = 80
+  cidr_ipv4 = var.trusted_cidrs_for_wordpress_access
+  from_port = 80
+  ip_protocol = "tcp"
+  to_port = 80
 }
 
 resource "aws_vpc_security_group_ingress_rule" "wordpress_allow_ssh_ipv4" {
   security_group_id = aws_security_group.wordpress.id
-  cidr_ipv4         = var.trusted_cidrs_for_wordpress_access
-  from_port         = 22
-  ip_protocol       = "tcp"
-  to_port           = 22
+  cidr_ipv4 = var.trusted_cidrs_for_wordpress_access
+  from_port = 22
+  ip_protocol = "tcp"
+  to_port = 22
 }
 
 resource "aws_vpc_security_group_egress_rule" "wordpress_allow_all_traffic_ipv4" {
   security_group_id = aws_security_group.wordpress.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1"
+  cidr_ipv4 = "0.0.0.0/0"
+  ip_protocol = "-1"
 }
 
 resource "aws_security_group" "mariadb" {
-  name        = "${var.name_prefix}-mariadb"
+  name = "${var.name_prefix}-mariadb"
   description = "Allow access to MariaDB"
-  vpc_id      = data.aws_vpc.default.id
+  vpc_id = data.aws_vpc.default.id
   tags = {
     Name = "wordpress_db_access"
   }
@@ -198,23 +232,23 @@ resource "aws_security_group" "mariadb" {
 
 resource "aws_vpc_security_group_ingress_rule" "rds_allow_maria_db_ipv4_app" {
   security_group_id = aws_security_group.mariadb.id
-  cidr_ipv4         = data.aws_vpc.default.cidr_block
-  from_port         = 3306
-  to_port           = 3306
-  ip_protocol       = "tcp"
+  cidr_ipv4 = data.aws_vpc.default.cidr_block
+  from_port = 3306
+  to_port = 3306
+  ip_protocol = "tcp"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "rds_allow_maria_db_ipv4_trusted" {
-  count             = var.enable_public_mariadb_access ? 1 : 0
+  count = var.enable_public_mariadb_access ? 1 : 0
   security_group_id = aws_security_group.mariadb.id
-  cidr_ipv4         = var.trusted_cidrs_for_wordpress_access
-  from_port         = 3306
-  to_port           = 3306
-  ip_protocol       = "tcp"
+  cidr_ipv4 = var.trusted_cidrs_for_wordpress_access
+  from_port = 3306
+  to_port = 3306
+  ip_protocol = "tcp"
 }
 
 resource "aws_vpc_security_group_egress_rule" "rds_allow_all_traffic_ipv4" {
   security_group_id = aws_security_group.mariadb.id
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "-1"
+  cidr_ipv4 = "0.0.0.0/0"
+  ip_protocol = "-1"
 }

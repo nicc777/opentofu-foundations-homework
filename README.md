@@ -17,7 +17,7 @@ Homework from https://github.com/massdriver-cloud/opentofu-foundations
 ### Preparations
 
 * In AWS EC2 console, create a SSH key pair for SSH access to the wordpress server. An alternative could be to use the [key_pair](https://library.tf/providers/hashicorp/aws/latest/docs/resources/key_pair) resource to create a key pair, but that would also require some local script to generate the secret key and export the public key material for use in as a variable input.
-* In the default VPC, tag at least one public `subnet` with a tag named `experimental` and a value of `1`.
+* ~~In the default VPC, tag at least one public `subnet` with a tag named `experimental` and a value of `1`.~~ - This solution assumes a default VPC with Public only subnets.
 
 ### Various other Changes or Improvements
 

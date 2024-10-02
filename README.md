@@ -2,15 +2,20 @@
 Homework from https://github.com/massdriver-cloud/opentofu-foundations
 
 - [Progress](#progress)
+  - [Week 2](#week-2)
   - [Week 1](#week-1)
     - [Preparations](#preparations)
     - [Various other Changes or Improvements](#various-other-changes-or-improvements)
     - [Observations / Learnings](#observations--learnings)
-    - [Getting the EC2 instance DNS name:](#getting-the-ec2-instance-dns-name)
-    - [DB Access:](#db-access)
+    - [Getting the EC2 instance DNS name](#getting-the-ec2-instance-dns-name)
+    - [DB Access](#db-access)
 
 
 # Progress
+
+## Week 2
+
+TODO
 
 ## Week 1
 
@@ -84,7 +89,7 @@ image = {
 }
 ```
 
-### Getting the EC2 instance DNS name:
+### Getting the EC2 instance DNS name
 
 ```shell
 sh ./get_instance_dns.sh
@@ -93,7 +98,7 @@ sh ./get_instance_dns.sh
 > [!NOTE]  
 > OpenTofu does not directly create the instances, and it is therefore better to use the AWS CLI to get the public DNS entry for the instance
 
-### DB Access:
+### DB Access
 
 Get the hostname and DB username from the OpenTofu output and the password from secrets manager and connect:
 

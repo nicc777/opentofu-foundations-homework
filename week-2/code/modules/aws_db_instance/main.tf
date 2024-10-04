@@ -17,6 +17,9 @@ resource "aws_db_instance" "this" {
   vpc_security_group_ids  = [aws_security_group.this.id]
   skip_final_snapshot     = true
 
+  backup_retention_period = var.backup_retention_period
+  availability_zone       = var.availability_zone
+
   tags = var.tags
 }
 

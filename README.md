@@ -22,7 +22,7 @@ I started with the same state as for week 1 and ensured that week 1 preparations
 
 * I started by first going through the [OpenTofu Modules documentation](https://opentofu.org/docs/language/modules/)
   * For the challenges I reviewed the [GitHub module referencing](https://opentofu.org/docs/language/modules/sources/#github) in order to understand how versioning can be accomplished. I noticed that other sources, like using the `Module Registry` can take a `version` parameter. I then went through the [Module Registry documentation](https://opentofu.org/docs/internals/module-registry-protocol/) to further understand how versioning actually works.
-
+* Referred to [this resource](https://www.perrotta.dev/2024/05/terraform-aws-deployment-to-random-availability-zones/) for learning about how I can get the availability zones and then select a random one ofr the DB deployment
 
 # Week 1
 

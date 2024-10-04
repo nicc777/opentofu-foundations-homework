@@ -18,6 +18,17 @@ provider "aws" {
   }
 }
 
+# Get the available AZ's
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
+# Select a random AZ for our variable
+resource "random_shuffle" "aws_availability_zone_name" {
+  input        = data.aws_availability_zones.available.names
+  result_count = 1
+}
+
 # Module for Database Instance
 module "aws_db_instance" {
   source = "./modules/aws_db_instance"
@@ -26,6 +37,9 @@ module "aws_db_instance" {
   db_name     = "wordpress"
   username    = "admin"
   password    = "yourpassword" # In production, use a secure method for passwords
+
+  backup_retention_period = 1
+  availability_zone = element(random_shuffle.aws_availability_zone_name.result, 0)
 
   tags = {
     Owner = "YourName"

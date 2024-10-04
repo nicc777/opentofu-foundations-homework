@@ -1,37 +1,44 @@
 
 Homework from https://github.com/massdriver-cloud/opentofu-foundations
 
-- [Progress](#progress)
-  - [Week 2](#week-2)
-  - [Week 1](#week-1)
-    - [Preparations](#preparations)
-    - [Various other Changes or Improvements](#various-other-changes-or-improvements)
-    - [Observations / Learnings](#observations--learnings)
+- [Week 2](#week-2)
+  - [Preparations](#preparations)
+  - [Observations / Learnings](#observations--learnings)
+- [Week 1](#week-1)
+  - [Preparations](#preparations-1)
+  - [Various other Changes or Improvements](#various-other-changes-or-improvements)
+  - [Observations / Learnings](#observations--learnings-1)
     - [Getting the EC2 instance DNS name](#getting-the-ec2-instance-dns-name)
     - [DB Access](#db-access)
 
 
-# Progress
+# Week 2
 
-## Week 2
+## Preparations
 
-TODO
+I started with the same state as for week 1 and ensured that week 1 preparations were done (or at least still valid).
 
-## Week 1
+## Observations / Learnings
 
-### Preparations
+* I started by first going through the [OpenTofu Modules documentation](https://opentofu.org/docs/language/modules/)
+  * For the challenges I reviewed the [GitHub module referencing](https://opentofu.org/docs/language/modules/sources/#github) in order to understand how versioning can be accomplished. I noticed that other sources, like using the `Module Registry` can take a `version` parameter. I then went through the [Module Registry documentation](https://opentofu.org/docs/internals/module-registry-protocol/) to further understand how versioning actually works.
+
+
+# Week 1
+
+## Preparations
 
 * In AWS EC2 console, create a SSH key pair for SSH access to the wordpress server. An alternative could be to use the [key_pair](https://library.tf/providers/hashicorp/aws/latest/docs/resources/key_pair) resource to create a key pair, but that would also require some local script to generate the secret key and export the public key material for use in as a variable input.
 * ~~In the default VPC, tag at least one public `subnet` with a tag named `experimental` and a value of `1`.~~ - This solution assumes a default VPC with Public only subnets.
 
-### Various other Changes or Improvements
+## Various other Changes or Improvements
 
 * Added AWS SecretsManager to store DB password
 * Used AWS SecretsManager secret value in the creation of EC2 and RDS resources
 * Added a variable for the HTTP ingress in order to limit it to only my public IP address
 * Added selection of AWS EC2 AMI and removed hard coded AMI
 
-### Observations / Learnings
+## Observations / Learnings
 
 * Used https://library.tf/ for documentation on the AWS provider. Useful links:
   * [SecretsManager Resource](https://library.tf/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret)

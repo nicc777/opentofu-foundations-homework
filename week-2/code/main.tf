@@ -26,6 +26,11 @@ data "aws_vpc" "default" {
   }
 }
 
+# Get the secret
+data "aws_secretsmanager_secret_version" "db_password" {
+  secret_id = module.db_password.secret_id
+}
+
 # Get the available AZ's
 data "aws_availability_zones" "available" {
   state = "available"
@@ -44,7 +49,7 @@ module "aws_db_instance" {
   name_prefix = "week2-db"
   db_name     = "wordpress"
   username    = "admin"
-  password    = "yourpassword" # In production, use a secure method for passwords
+  password    = data.aws_secretsmanager_secret_version.db_password.secret_string
 
   backup_retention_period = 1
   availability_zone = element(random_shuffle.aws_availability_zone_name.result, 0)
@@ -75,7 +80,7 @@ module "aws_instance" {
                 docker run -d \
                   -e WORDPRESS_DB_HOST=${module.aws_db_instance.endpoint} \
                   -e WORDPRESS_DB_USER=${module.aws_db_instance.username} \
-                  -e WORDPRESS_DB_PASSWORD=${module.aws_db_instance.password} \
+                  -e WORDPRESS_DB_PASSWORD=${data.aws_secretsmanager_secret_version.db_password.secret_string} \
                   -e WORDPRESS_DB_NAME=${module.aws_db_instance.db_name} \
                   -p 80:80 ${var.image.name}:${var.image.tag}
               EOF
@@ -131,4 +136,13 @@ module "wordpress_security_group" {
 
 }
 
+# Module for Web Server Security Group
+module "db_password" {
+  source = "./modules/aws_secrets_manager"
+
+  secret_description = "Wordpress Database Password"
+  secret_name = "wordpress-db-password"
+  secret_length = 40
+
+}
 

@@ -8,7 +8,3 @@ output "public_ip" {
   value       = aws_instance.this.public_ip
 }
 
-output "security_group_id" {
-  description = "ID of the security group"
-  value       = aws_security_group.this.id
-}

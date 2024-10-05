@@ -17,8 +17,3 @@ output "db_name" {
   description = "Database name"
   value       = aws_db_instance.this.db_name
 }
-
-output "security_group_id" {
-  description = "ID of the database security group"
-  value       = aws_security_group.this.id
-}

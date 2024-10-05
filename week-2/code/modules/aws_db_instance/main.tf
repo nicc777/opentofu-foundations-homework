@@ -1,9 +1,3 @@
-data "aws_vpc" "default" {
-  filter {
-    name = "isDefault"
-    values = ["true"]
-  }
-}
 
 resource "aws_db_instance" "this" {
   identifier              = var.name_prefix
@@ -14,7 +8,7 @@ resource "aws_db_instance" "this" {
   db_name                 = var.db_name
   username                = var.username
   password                = var.password
-  vpc_security_group_ids  = [aws_security_group.this.id]
+  vpc_security_group_ids  = [var.db_scurity_group_id]  ###
   skip_final_snapshot     = true
 
   backup_retention_period = var.backup_retention_period
@@ -23,24 +17,5 @@ resource "aws_db_instance" "this" {
   tags = var.tags
 }
 
-resource "aws_security_group" "this" {
-  name        = "${var.name_prefix}-mariadb"
-  description = "Allow access to MariaDB"
 
-  ingress {
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "tcp"
-    cidr_blocks = [data.aws_vpc.default.cidr_block]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = var.tags
-}
 

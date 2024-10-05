@@ -90,3 +90,8 @@ variable "availability_zone" {
   }
 }
 
+variable "db_scurity_group_id" {
+  description = "A security group ID"
+  type        = string
+}
+

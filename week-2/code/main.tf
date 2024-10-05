@@ -18,6 +18,14 @@ provider "aws" {
   }
 }
 
+# Get the default VPC
+data "aws_vpc" "default" {
+  filter {
+    name = "isDefault"
+    values = ["true"]
+  }
+}
+
 # Get the available AZ's
 data "aws_availability_zones" "available" {
   state = "available"
@@ -41,6 +49,8 @@ module "aws_db_instance" {
   backup_retention_period = 1
   availability_zone = element(random_shuffle.aws_availability_zone_name.result, 0)
 
+  db_scurity_group_id = module.db_security_group.security_group_id
+
   tags = {
     Owner = "YourName"
   }
@@ -53,6 +63,8 @@ module "aws_instance" {
   name_prefix   = "week2-instance"
   ami           = "ami-08578967e04feedea" # Amazon Linux 2 AMI
   instance_type = "t2.micro"
+
+  instance_scurity_group_id = module.wordpress_security_group.security_group_id
 
   user_data = <<-EOF
                 #!/bin/bash
@@ -84,3 +96,39 @@ variable "image" {
     tag  = "latest"
   }
 }
+
+
+# Module for Database Security Group
+module "db_security_group" {
+  source = "./modules/aws_security_groups"
+
+  # Main security group variables
+  name_prefix = "week2"
+  resource_name = "db"
+  security_group_description = "Security group for Wordpress DB"
+  aws_vpc_id = data.aws_vpc.default.id
+
+  # Ingress rules
+  ports = ["3306"]
+  trusted_ingress_cidr = data.aws_vpc.default.cidr_block
+
+
+}
+
+# Module for Web Server Security Group
+module "wordpress_security_group" {
+  source = "./modules/aws_security_groups"
+
+  # Main security group variables
+  name_prefix = "week2"
+  resource_name = "wordpress"
+  security_group_description = "Security group for Wordpress Web Server"
+  aws_vpc_id = data.aws_vpc.default.id
+
+  # Ingress rules
+  ports = ["22","80"]
+  trusted_ingress_cidr = "0.0.0.0/0"
+
+}
+
+

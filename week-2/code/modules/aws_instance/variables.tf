@@ -43,3 +43,7 @@ variable "tags" {
   default     = {}
 }
 
+variable "instance_scurity_group_id" {
+  description = "A security group ID"
+  type        = string
+}

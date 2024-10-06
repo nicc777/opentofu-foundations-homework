@@ -56,8 +56,56 @@ I relased quickly the ideal scenario is to have each module in each own Git repo
 
 I further decided to make a updated version of the instance template by just adding a tag and decided to tag this release as `2.0.1`. However, I will keep the `main` branch pointed to the original `2.0.0` rlease branch and only experiment locally in a working branch pointing to `2.0.1` for the launch template changes.
 
-> [!NOTE]  
-> I will update this section after the practical experimentation.
+My working branch is named `week2-test-new-version-branch` and I will hopefully remember to not delete it...
+
+Changes:
+
+```text
+OpenTofu will perform the following actions:
+
+  # module.aws_instance.aws_instance.this will be updated in-place
+  ~ resource "aws_instance" "this" {
+        id                                   = "i-0c6194fc2dccd8b70"
+      ~ tags                                 = {
+          - "Name"  = "week-2-instance" -> null
+          - "Owner" = "Nico" -> null
+        }
+      ~ tags_all                             = {
+          - "Name"        = "week-2-instance" -> null
+          - "Owner"       = "Nico" -> null
+            # (2 unchanged elements hidden)
+        }
+      ~ user_data                            = "dada918475ba3288ff91f95f07f7832a5bb19293" -> "7ee573b756c8eab62f11490b8f408b9b0aff03b2"
+        # (30 unchanged attributes hidden)
+
+        # (9 unchanged blocks hidden)
+    }
+
+  # module.aws_instance.aws_launch_template.this will be updated in-place
+  ~ resource "aws_launch_template" "this" {
+        id                      = "lt-027262146d7881817"
+      ~ latest_version          = 1 -> (known after apply)
+        name                    = "week-2-instance-lt20241006090422872800000004"
+        tags                    = {}
+        # (11 unchanged attributes hidden)
+
+      ~ tag_specifications {
+          ~ tags          = {
+                "Name"  = "week-2-instance"
+              + "Note"  = "Some note..."
+                "Owner" = "Nico"
+            }
+            # (1 unchanged attribute hidden)
+        }
+
+        # (1 unchanged block hidden)
+    }
+
+Plan: 0 to add, 2 to change, 0 to destroy.
+
+```
+
+The actual end result with just a new template version. Nothing changed on the running instance, which is kind of expected sine I have not launch the instance via an Auto Scaling Group. However, the change was good enough for me to test the concept.
 
 # Week 1
 

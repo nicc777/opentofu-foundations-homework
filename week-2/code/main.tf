@@ -66,6 +66,7 @@ resource "random_shuffle" "subnets" {
 }
 
 module "aws_db_instance" {
+  depends_on = [ module.lab_vpc, module.db_security_group ]
   source                  = "git::https://github.com/nicc777/opentofu-foundations-homework.git//week-2/code/modules/aws_db_instance?ref=2.0.0"
   name_prefix             = "${var.name_prefix}"
   db_name                 = "wordpress"

@@ -4,6 +4,7 @@ Homework from https://github.com/massdriver-cloud/opentofu-foundations
 - [Week 2](#week-2)
   - [Preparations](#preparations)
   - [Observations / Learnings](#observations--learnings)
+    - [Testing for a new version of a module](#testing-for-a-new-version-of-a-module)
 - [Week 1](#week-1)
   - [Preparations](#preparations-1)
   - [Various other Changes or Improvements](#various-other-changes-or-improvements)
@@ -22,7 +23,7 @@ Challenge Progress
 | **Parameterize Security Groups**: Modify the security group definitions for `aws_instance` and `aws_db_instance` to accept lists of ports and protocols as variables.                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Done          |
 | **Use AWS Secrets Manager**: Store the database password in [AWS Secrets Manager](https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html) (or [SSM](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html)) and retrieve it in your configuration.                                                                                                                                                                                                                                                                                                                 | Done          |
 | **Create a VPC Module**: Create a module for VPC components like subnets, route tables, and internet gateways.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Done          |
-| **Implement Module Versioning**: [Tag your modules](https://opentofu.org/docs/language/modules/sources/) with versions and test upgrading between versions                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | In Progress   |
+| **Implement Module Versioning**: [Tag your modules](https://opentofu.org/docs/language/modules/sources/) with versions and test upgrading between versions                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Done          |
 
 ## Preparations
 
@@ -42,6 +43,17 @@ I started with the same state as for week 1 and ensured that week 1 preparations
 * For the versioning, I updated the modules to target a GitHub URL, following instructions from [the OpenTofu documentation](https://opentofu.org/docs/language/modules/sources/#github). I opted to try TAG references as [documented here](https://opentofu.org/docs/language/modules/sources/#generic-git-repository).
   * The actual execise will be done on separate tags on the main branch and not in the exercise branch or by using some other commit hash.
   * I had to run `tofu init -upgrade` after changes
+  * It appeared that the DB failed to create every time from a fresh `apply` but this was resolved after I added `depends_on` in the DB module. As I understand OpenTofu, this should not strictly speaking be required (it worked sometimes without it), but somehow this appears to make it deploy successfully evey time. Not sure if this is an issue or if I miss something. 
+* I did not put too much though into a Git workflow and I ended up paying the price. I recovered mostly, but I once again learned to rather plan from the start. Frustrating :-D
+
+### Testing for a new version of a module
+
+I assume that one of the key operational tasks would be to update your stack if a significant enough change present itself in a upstream modul.
+
+For this reason I attempted to test this scenario by creating a new release and then pointing to an updated module (new version) going through the whole `init`, `plan` and `apply` cycles.
+
+> [!NOTE]  
+> I will updatethis section after the practical experimentation.
 
 # Week 1
 

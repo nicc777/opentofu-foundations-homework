@@ -47,3 +47,13 @@ variable "instance_scurity_group_id" {
   description = "A security group ID"
   type        = string
 }
+
+variable "subnet_id" {
+  type        = string
+  description = "A subnet ID"
+
+  validation {
+    condition     = can(regex("^subnet\\-\\w+$", var.subnet_id))
+    error_message = "Expected a subnet string to start with the string 'subnet-'"
+  }
+}

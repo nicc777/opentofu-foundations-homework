@@ -84,7 +84,7 @@ module "aws_db_instance" {
 
 # Module for EC2 Instance
 module "aws_instance" {
-  source                  = "git::https://github.com/nicc777/opentofu-foundations-homework.git//week-2/code/modules/aws_instance?ref=2.0.0"
+  source                  = "git::https://github.com/nicc777/opentofu-foundations-homework.git//week-2/code/modules/aws_instance?ref=2.0.1"
   name_prefix               = "${var.name_prefix}-instance"
   ami                       = "ami-08578967e04feedea" # Amazon Linux 2 AMI
   instance_type             = "t2.micro"

@@ -52,8 +52,12 @@ I assume that one of the key operational tasks would be to update your stack if 
 
 For this reason I attempted to test this scenario by creating a new release and then pointing to an updated module (new version) going through the whole `init`, `plan` and `apply` cycles.
 
+I relased quickly the ideal scenario is to have each module in each own Git repo, because the mixed version by tag use does not look nice, neither does it look manageabe.
+
+I further decided to make a updated version of the instance template by just adding a tag and decided to tag this release as `2.0.1`. However, I will keep the `main` branch pointed to the original `2.0.0` rlease branch and only experiment locally in a working branch pointing to `2.0.1` for the launch template changes.
+
 > [!NOTE]  
-> I will updatethis section after the practical experimentation.
+> I will update this section after the practical experimentation.
 
 # Week 1
 

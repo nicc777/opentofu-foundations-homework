@@ -18,22 +18,38 @@ provider "aws" {
   }
 }
 
-# Get the default VPC
-data "aws_vpc" "default" {
-  filter {
-    name = "isDefault"
-    values = ["true"]
+# Get the available AZ's
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
+locals {
+  name     = "lab"
+  region   = "us-west-2"
+  vpc_cidr = "10.0.0.0/16"
+  azs      = slice(data.aws_availability_zones.available.names, 0, 3)
+  tags = {
+    Example    = local.name
+    GithubRepo = "terraform-aws-vpc"
+    GithubOrg  = "terraform-aws-modules"
   }
+}
+
+module "lab_vpc" {
+  source             = "terraform-aws-modules/vpc/aws"
+  name               = local.name
+  cidr               = local.vpc_cidr
+  azs                = local.azs
+  public_subnets     = cidrsubnets(local.vpc_cidr, 4, 4, 4)
+  enable_nat_gateway = false
+  enable_vpn_gateway = false
+  tags               = local.tags
 }
 
 # Get the secret
 data "aws_secretsmanager_secret_version" "db_password" {
-  secret_id = module.db_password.secret_id
-}
-
-# Get the available AZ's
-data "aws_availability_zones" "available" {
-  state = "available"
+  depends_on = [module.db_password]
+  secret_id  = module.db_password.secret_id
 }
 
 # Select a random AZ for our variable
@@ -43,19 +59,23 @@ resource "random_shuffle" "aws_availability_zone_name" {
 }
 
 # Module for Database Instance
+resource "random_shuffle" "subnets" {
+  # input        = values(data.aws_subnet.subnet)[*].id
+  input        = module.lab_vpc.public_subnets
+  result_count = 2
+}
+
 module "aws_db_instance" {
-  source = "./modules/aws_db_instance"
-
-  name_prefix = "week2-db"
-  db_name     = "wordpress"
-  username    = "admin"
-  password    = data.aws_secretsmanager_secret_version.db_password.secret_string
-
+  source                  = "./modules/aws_db_instance"
+  name_prefix             = "${var.name_prefix}"
+  db_name                 = "wordpress"
+  username                = "admin"
+  password                = data.aws_secretsmanager_secret_version.db_password.secret_string
   backup_retention_period = 1
-  availability_zone = element(random_shuffle.aws_availability_zone_name.result, 0)
-
-  db_scurity_group_id = module.db_security_group.security_group_id
-
+  availability_zone       = module.lab_vpc.azs[0]
+  db_scurity_group_id     = module.db_security_group.security_group_id
+  db_subnet_group_name    = "${var.name_prefix}-db-subnet-group"
+  subnet_ids              = [random_shuffle.subnets.result[0], random_shuffle.subnets.result[1]]
   tags = {
     Owner = "YourName"
   }
@@ -63,15 +83,13 @@ module "aws_db_instance" {
 
 # Module for EC2 Instance
 module "aws_instance" {
-  source = "./modules/aws_instance"
-
-  name_prefix   = "week2-instance"
-  ami           = "ami-08578967e04feedea" # Amazon Linux 2 AMI
-  instance_type = "t2.micro"
-
+  source                    = "./modules/aws_instance"
+  name_prefix               = "${var.name_prefix}-instance"
+  ami                       = "ami-08578967e04feedea" # Amazon Linux 2 AMI
+  instance_type             = "t2.micro"
   instance_scurity_group_id = module.wordpress_security_group.security_group_id
-
-  user_data = <<-EOF
+  subnet_id                 = module.lab_vpc.public_subnets[0]
+  user_data                 = <<-EOF
                 #!/bin/bash
                 yum update -y
                 amazon-linux-extras install docker -y
@@ -84,65 +102,42 @@ module "aws_instance" {
                   -e WORDPRESS_DB_NAME=${module.aws_db_instance.db_name} \
                   -p 80:80 ${var.image.name}:${var.image.tag}
               EOF
-
   tags = {
-    Owner = "YourName"
+    Owner = "Nico"
   }
 }
-
-variable "image" {
-  type = object({
-    name = string
-    tag  = string
-  })
-
-  default = {
-    name = "wordpress"
-    tag  = "latest"
-  }
-}
-
 
 # Module for Database Security Group
 module "db_security_group" {
-  source = "./modules/aws_security_groups"
-
-  # Main security group variables
-  name_prefix = "week2"
-  resource_name = "db"
+  source                     = "./modules/aws_security_groups"
+  name_prefix                = "week2"
+  resource_name              = "db"
   security_group_description = "Security group for Wordpress DB"
-  aws_vpc_id = data.aws_vpc.default.id
-
-  # Ingress rules
-  ports = ["3306"]
-  trusted_ingress_cidr = data.aws_vpc.default.cidr_block
+  aws_vpc_id                 = module.lab_vpc.vpc_id
+  ports                      = ["3306"]
+  trusted_ingress_cidr       = module.lab_vpc.vpc_cidr_block
 
 
 }
 
 # Module for Web Server Security Group
 module "wordpress_security_group" {
-  source = "./modules/aws_security_groups"
-
-  # Main security group variables
-  name_prefix = "week2"
-  resource_name = "wordpress"
+  source                     = "./modules/aws_security_groups"
+  name_prefix                = "week2"
+  resource_name              = "wordpress"
   security_group_description = "Security group for Wordpress Web Server"
-  aws_vpc_id = data.aws_vpc.default.id
-
-  # Ingress rules
-  ports = ["22","80"]
-  trusted_ingress_cidr = "0.0.0.0/0"
+  aws_vpc_id                 = module.lab_vpc.vpc_id
+  ports                      = ["22", "80"]
+  trusted_ingress_cidr       = "0.0.0.0/0"
 
 }
 
 # Module for Web Server Security Group
 module "db_password" {
-  source = "./modules/aws_secrets_manager"
-
+  source             = "./modules/aws_secrets_manager"
   secret_description = "Wordpress Database Password"
-  secret_name = "wordpress-db-password"
-  secret_length = 40
+  secret_name        = "wordpress-db-password"
+  secret_length      = 40
 
 }
 

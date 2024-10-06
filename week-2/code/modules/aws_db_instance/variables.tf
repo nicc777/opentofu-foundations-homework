@@ -95,3 +95,17 @@ variable "db_scurity_group_id" {
   type        = string
 }
 
+variable "db_subnet_group_name" {
+  description = "A name of the DB subnet group"
+  type        = string
+}
+
+variable "subnet_ids" {
+  type        = set(string)
+  description = "A set of subnet IDs"
+
+  validation {
+    condition     = alltrue([for sn in var.subnet_ids : can(regex("^subnet\\-\\w+$", sn))])
+    error_message = "Expected a subnet string to start with the string 'subnet-'"
+  }
+}

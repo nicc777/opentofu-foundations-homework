@@ -2,9 +2,7 @@ resource "aws_launch_template" "this" {
   name_prefix   = "${var.name_prefix}-lt"
   image_id      = var.ami
   instance_type = var.instance_type
-
-  user_data = base64encode(var.user_data)
-
+  user_data     = base64encode(var.user_data)
   tag_specifications {
     resource_type = "instance"
     tags = merge(
@@ -14,10 +12,10 @@ resource "aws_launch_template" "this" {
       }
     )
   }
-
   network_interfaces {
     associate_public_ip_address = true
     security_groups             = [var.instance_scurity_group_id]
+    subnet_id                   = var.subnet_id
   }
 }
 

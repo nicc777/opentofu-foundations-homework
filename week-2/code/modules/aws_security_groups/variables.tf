@@ -28,8 +28,8 @@ variable "trusted_ingress_cidr" {
 }
 
 variable "ports" {
-  type        = set(string)
-#   default     = ["80","443","3306"]
+  type = set(string)
+  #   default     = ["80","443","3306"]
   description = "A set of TCP ports"
 
   validation {

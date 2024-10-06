@@ -35,28 +35,28 @@ I started with the same state as for week 1 and ensured that week 1 preparations
   * For the challenges I reviewed the [GitHub module referencing](https://opentofu.org/docs/language/modules/sources/#github) in order to understand how versioning can be accomplished. I noticed that other sources, like using the `Module Registry` can take a `version` parameter. I then went through the [Module Registry documentation](https://opentofu.org/docs/internals/module-registry-protocol/) to further understand how versioning actually works.
 * Referred to [this resource](https://www.perrotta.dev/2024/05/terraform-aws-deployment-to-random-availability-zones/) for learning about how I can get the availability zones and then select a random one ofr the DB deployment
 * Created a separate module for security group creation, and added support to handle a variable list of ports to allow ingress. Adding protocols as part of the list did not make sense in this context, so I left it out.
-  * I learned that when using `for_each`, only string types are permitted, so I had to add the port numbers as strings and then use another `tonumber()` funtion to convert it to an actual number.
+  * I learned that when using `for_each`, only string types are permitted, so I had to add the port numbers as strings and then use another `tonumber()` function to convert it to an actual number.
 * I choose to use secrets manager and also created a separate module for that. For some reason I have to run the `plan` / `apply` cycle twice as the secret version is not available on the first round. Not 100% sure why this is the case.
 * For the VPC I used a public module called [terraform-aws-modules/terraform-aws-vpc](https://library.tf/modules/terraform-aws-modules/vpc/aws/latest)
 * Because I created a custom VPC with only public subnets, I had to add a `publicly_accessible` argument to the RDS resource. For the exercise I did this as we might want to connect directly to the DB. Typically the DB will always be in a private subnet.
 * When not using the default VPC, more resources need to be adapted to target the VPC. I had to deal with a lot of errors about something not belonging to the same VPC as many resources by default target the default VPC.
 * For the versioning, I updated the modules to target a GitHub URL, following instructions from [the OpenTofu documentation](https://opentofu.org/docs/language/modules/sources/#github). I opted to try TAG references as [documented here](https://opentofu.org/docs/language/modules/sources/#generic-git-repository).
-  * The actual execise will be done on separate tags on the main branch and not in the exercise branch or by using some other commit hash.
+  * The actual exercise will be done on separate tags on the main branch and not in the exercise branch or by using some other commit hash.
   * I had to run `tofu init -upgrade` after changes
-  * It appeared that the DB failed to create every time from a fresh `apply` but this was resolved after I added `depends_on` in the DB module. As I understand OpenTofu, this should not strictly speaking be required (it worked sometimes without it), but somehow this appears to make it deploy successfully evey time. Not sure if this is an issue or if I miss something. 
+  * It appeared that the DB failed to create every time from a fresh `apply` but this was resolved after I added `depends_on` in the DB module. As I understand OpenTofu, this should not strictly speaking be required (it worked sometimes without it), but somehow this appears to make it deploy successfully every time. Not sure if this is an issue or if I miss something. 
 * I did not put too much though into a Git workflow and I ended up paying the price. I recovered mostly, but I once again learned to rather plan from the start. Frustrating :-D
 
 ### Testing for a new version of a module
 
-I assume that one of the key operational tasks would be to update your stack if a significant enough change present itself in a upstream modul.
+I assume that one of the key operational tasks would be to update your stack if a significant enough change present itself in a upstream module.
 
 For this reason I attempted to test this scenario by creating a new release and then pointing to an updated module (new version) going through the whole `init`, `plan` and `apply` cycles.
 
-I realized quickly the ideal scenario is to have each module in each own Git repo, because the mixed version by tag use does not look nice, neither does it look manageabe.
+I realized quickly the ideal scenario is to have each module in each own Git repo, because the mixed version by tag use does not look nice, neither does it look manageable.
 
-I further decided to make a updated version of the instance template by just adding a tag and decided to tag this release as `2.0.1`. However, I will keep the `main` branch pointed to the original `2.0.0` rlease branch and only experiment locally in a working branch pointing to `2.0.1` for the launch template changes.
+I further decided to make a updated version of the instance template by just adding a tag and decided to tag this release as `2.0.1`. However, I will keep the `main` branch pointed to the original `2.0.0` release branch and only experiment locally in a working branch pointing to `2.0.1` for the launch template changes.
 
-My working branch is named `week2-test-new-version-branch` and I will hopefully remember to not delete it...
+My working branch is named `week2-test-new-version-branch` and I will hopefully remember to not delete it... 
 
 Changes:
 

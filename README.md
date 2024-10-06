@@ -44,7 +44,7 @@ I started with the same state as for week 1 and ensured that week 1 preparations
   * The actual exercise will be done on separate tags on the main branch and not in the exercise branch or by using some other commit hash.
   * I had to run `tofu init -upgrade` after changes
   * It appeared that the DB failed to create every time from a fresh `apply` but this was resolved after I added `depends_on` in the DB module. As I understand OpenTofu, this should not strictly speaking be required (it worked sometimes without it), but somehow this appears to make it deploy successfully every time. Not sure if this is an issue or if I miss something. 
-* I did not put too much though into a Git workflow and I ended up paying the price. I recovered mostly, but I once again learned to rather plan from the start. Frustrating :-D
+* I did not put too much thought into a Git workflow and I ended up paying the price. I recovered mostly, but I once again learned to rather plan from the start. Frustrating :-D
 
 ### Testing for a new version of a module
 

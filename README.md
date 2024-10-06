@@ -41,6 +41,7 @@ I started with the same state as for week 1 and ensured that week 1 preparations
 * When not using the default VPC, more resources need to be adapted to target the VPC. I had to deal with a lot of errors about something not belonging to the same VPC as many resources by default target the default VPC.
 * For the versioning, I updated the modules to target a GitHub URL, following instructions from [the OpenTofu documentation](https://opentofu.org/docs/language/modules/sources/#github). I opted to try TAG references as [documented here](https://opentofu.org/docs/language/modules/sources/#generic-git-repository).
   * The actual execise will be done on separate tags on the main branch and not in the exercise branch or by using some other commit hash.
+  * I had to run `tofu init -upgrade` after changes
 
 # Week 1
 

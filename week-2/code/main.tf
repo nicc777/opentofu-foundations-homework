@@ -66,7 +66,7 @@ resource "random_shuffle" "subnets" {
 }
 
 module "aws_db_instance" {
-  source                  = "git::https://github.com/nicc777/opentofu-foundations-homework.git//week-2/code/modules/aws_db_instance?ref=week-2-release-1"
+  source                  = "git::https://github.com/nicc777/opentofu-foundations-homework.git//week-2/code/modules/aws_db_instance?ref=2.0.0"
   name_prefix             = "${var.name_prefix}"
   db_name                 = "wordpress"
   username                = "admin"
@@ -83,7 +83,7 @@ module "aws_db_instance" {
 
 # Module for EC2 Instance
 module "aws_instance" {
-  source                  = "git::https://github.com/nicc777/opentofu-foundations-homework.git//week-2/code/modules/aws_instance?ref=week-2-release-1"
+  source                  = "git::https://github.com/nicc777/opentofu-foundations-homework.git//week-2/code/modules/aws_instance?ref=2.0.0"
   name_prefix               = "${var.name_prefix}-instance"
   ami                       = "ami-08578967e04feedea" # Amazon Linux 2 AMI
   instance_type             = "t2.micro"
@@ -109,7 +109,7 @@ module "aws_instance" {
 
 # Module for Database Security Group
 module "db_security_group" {
-  source                     = "git::https://github.com/nicc777/opentofu-foundations-homework.git//week-2/code/modules/aws_security_groups?ref=week-2-release-1"
+  source                     = "git::https://github.com/nicc777/opentofu-foundations-homework.git//week-2/code/modules/aws_security_groups?ref=2.0.0"
   name_prefix                = "week2"
   resource_name              = "db"
   security_group_description = "Security group for Wordpress DB"
@@ -122,7 +122,7 @@ module "db_security_group" {
 
 # Module for Web Server Security Group
 module "wordpress_security_group" {
-  source                     = "git::https://github.com/nicc777/opentofu-foundations-homework.git//week-2/code/modules/aws_security_groups?ref=week-2-release-1"
+  source                     = "git::https://github.com/nicc777/opentofu-foundations-homework.git//week-2/code/modules/aws_security_groups?ref=2.0.0"
   name_prefix                = "week2"
   resource_name              = "wordpress"
   security_group_description = "Security group for Wordpress Web Server"
@@ -134,7 +134,7 @@ module "wordpress_security_group" {
 
 # Module for Web Server Security Group
 module "db_password" {
-  source             = "git::https://github.com/nicc777/opentofu-foundations-homework.git//week-2/code/modules/aws_secrets_manager?ref=week-2-release-1"
+  source             = "git::https://github.com/nicc777/opentofu-foundations-homework.git//week-2/code/modules/aws_secrets_manager?ref=2.0.0"
   secret_description = "Wordpress Database Password"
   secret_name        = "wordpress-db-password"
   secret_length      = 40

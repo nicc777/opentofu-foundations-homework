@@ -9,6 +9,9 @@ resource "aws_launch_template" "this" {
       var.tags,
       {
         Name = var.name_prefix
+      },
+      {
+        Note = "Some note..."
       }
     )
   }

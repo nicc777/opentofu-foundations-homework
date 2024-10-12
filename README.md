@@ -28,7 +28,18 @@ Challenge Progress
 
 ## Preparations
 
-TODO
+Basic start:
+
+```shell
+# Assuming the repo is checked out and the current working directory is the root of the project
+
+# First, set the alias to tofu to where ever the binary is
+alias t=...
+
+# Init
+cd week-1/code/functions
+t init
+```
 
 ## Observations / Learnings
 

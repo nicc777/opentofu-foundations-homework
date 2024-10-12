@@ -6,6 +6,7 @@ Homework from https://github.com/massdriver-cloud/opentofu-foundations
   - [Observations / Learnings](#observations--learnings)
     - [Challenge Outputs](#challenge-outputs)
       - [Challenge 1: Tag your ec2 instances with a random cat fact](#challenge-1-tag-your-ec2-instances-with-a-random-cat-fact)
+      - [Challenge 2: Add the conversion rate for the Mexican Peso](#challenge-2-add-the-conversion-rate-for-the-mexican-peso)
 - [Week 2](#week-2)
   - [Preparations](#preparations-1)
   - [Observations / Learnings](#observations--learnings-1)
@@ -25,7 +26,7 @@ Challenge Progress
 | Challenge                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Progress      |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
 | **Tag your ec2 instances with a random [cat fact](https://catfact.ninja/)**: Using the ExchangeRate function as a guide, retrieve a cat fact and add it as a tag to your ec2 instance module.                                                                                                                                                                                                                                                                                                                                                                                                                                  | Done          |
-| **Add the conversion rate for the Mexican Peso**: Using the [api documentation](https://fiscaldata.treasury.gov/datasets/treasury-reporting-rates-exchange/treasury-reporting-rates-of-exchange), add the conversion rate for the Peso to your environment variables.                                                                                                                                                                                                                                                                                                                                                          | Not Started   |
+| **Add the conversion rate for the Mexican Peso**: Using the [api documentation](https://fiscaldata.treasury.gov/datasets/treasury-reporting-rates-exchange/treasury-reporting-rates-of-exchange), add the conversion rate for the Peso to your environment variables.                                                                                                                                                                                                                                                                                                                                                          | Done          |
 | **Use a ternary expression to sort a user provided list and enable user configuration of the sort order**: Use the [sort](https://developer.hashicorp.com/terraform/language/functions/sort) and [reverse](https://developer.hashicorp.com/terraform/language/functions/reverse) functions in a ternary to sort a list by ascending or descending order based on a user input variable.                                                                                                                                                                                                                                        | Not Started   |
 
 ## Preparations
@@ -46,10 +47,27 @@ t init
 ## Observations / Learnings
 
 * For challenge one I basically did copy and paste of the Exchange Rate code and just made minor adjustments to add cat facts functionality. No major issues, even though I have never coded in Go. I guess sometimes it's ok to just get lucky.
+* For the second challenge I decided to try and add a variable so that I can switch more easily between currencies. 
+
+Using variables, from challenge 2 onward:
+
+```shell
+t plan -var-file=my_variables.tfvars
+
+t apply -var-file=my_variables.tfvars -auto-approve
+```
+
+
 
 ### Challenge Outputs
 
 #### Challenge 1: Tag your ec2 instances with a random cat fact
+
+Execution:
+
+```shell
+t apply -auto-approve
+```
 
 Output:
 
@@ -70,6 +88,33 @@ docker run -d \
 EOT
 ```
 
+#### Challenge 2: Add the conversion rate for the Mexican Peso
+
+Execution:
+
+```shell
+t apply -var-file=my_variables.tfvars -auto-approve
+```
+
+Output:
+
+```text
+data = <<EOT
+#!/bin/bash
+yum update -y
+amazon-linux-extras install docker -y
+service docker start
+usermod -a -G docker ec2-user
+docker run -d \
+  -e WORDPRESS_DB_HOST=xxxxxxxxxxx \
+  -e WORDPRESS_DB_USER=xxxxxxxxxxxx \
+  -e WORDPRESS_DB_PASSWORD=xxxxxxxxxxxxxxx \
+  -e EXCHANGE_RATE=19.655 \
+  -e EXCHANGE_RATE_CURRENCY=Mexico-Peso \
+  -e CAT_FACT=Approximately 40,000 people are bitten by cats in the U.S. annually. \
+  -p 80:80 xxxxxxxxxxxx:xxxxxxxxxxxx
+EOT
+```
 
 # Week 2
 

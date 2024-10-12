@@ -1,16 +1,38 @@
 
 Homework from https://github.com/massdriver-cloud/opentofu-foundations
 
-- [Week 2](#week-2)
+- [Week 3](#week-3)
   - [Preparations](#preparations)
   - [Observations / Learnings](#observations--learnings)
+- [Week 2](#week-2)
+  - [Preparations](#preparations-1)
+  - [Observations / Learnings](#observations--learnings-1)
     - [Testing for a new version of a module](#testing-for-a-new-version-of-a-module)
 - [Week 1](#week-1)
-  - [Preparations](#preparations-1)
+  - [Preparations](#preparations-2)
   - [Various other Changes or Improvements](#various-other-changes-or-improvements)
-  - [Observations / Learnings](#observations--learnings-1)
+  - [Observations / Learnings](#observations--learnings-2)
     - [Getting the EC2 instance DNS name](#getting-the-ec2-instance-dns-name)
     - [DB Access](#db-access)
+
+
+# Week 3
+
+Challenge Progress
+
+| Challenge                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Progress      |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| **Tag your ec2 instances with a random [cat fact](https://catfact.ninja/)**: Using the ExchangeRate function as a guide, retrieve a cat fact and add it as a tag to your ec2 instance module.                                                                                                                                                                                                                                                                                                                                                                                                                                  | Not Started   |
+| **Add the conversion rate for the Mexican Peso**: Using the [api documentation](https://fiscaldata.treasury.gov/datasets/treasury-reporting-rates-exchange/treasury-reporting-rates-of-exchange), add the conversion rate for the Peso to your environment variables.                                                                                                                                                                                                                                                                                                                                                          | Not Started   |
+| **Use a ternary expression to sort a user provided list and enable user configuration of the sort order**: Use the [sort](https://developer.hashicorp.com/terraform/language/functions/sort) and [reverse](https://developer.hashicorp.com/terraform/language/functions/reverse) functions in a ternary to sort a list by ascending or descending order based on a user input variable.                                                                                                                                                                                                                                        | Not Started   |
+
+## Preparations
+
+TODO
+
+## Observations / Learnings
+
+TODO
 
 
 # Week 2

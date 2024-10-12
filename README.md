@@ -4,6 +4,8 @@ Homework from https://github.com/massdriver-cloud/opentofu-foundations
 - [Week 3](#week-3)
   - [Preparations](#preparations)
   - [Observations / Learnings](#observations--learnings)
+    - [Challenge Outputs](#challenge-outputs)
+      - [Challenge 1: Tag your ec2 instances with a random cat fact](#challenge-1-tag-your-ec2-instances-with-a-random-cat-fact)
 - [Week 2](#week-2)
   - [Preparations](#preparations-1)
   - [Observations / Learnings](#observations--learnings-1)
@@ -22,7 +24,7 @@ Challenge Progress
 
 | Challenge                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Progress      |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
-| **Tag your ec2 instances with a random [cat fact](https://catfact.ninja/)**: Using the ExchangeRate function as a guide, retrieve a cat fact and add it as a tag to your ec2 instance module.                                                                                                                                                                                                                                                                                                                                                                                                                                  | Not Started   |
+| **Tag your ec2 instances with a random [cat fact](https://catfact.ninja/)**: Using the ExchangeRate function as a guide, retrieve a cat fact and add it as a tag to your ec2 instance module.                                                                                                                                                                                                                                                                                                                                                                                                                                  | Done          |
 | **Add the conversion rate for the Mexican Peso**: Using the [api documentation](https://fiscaldata.treasury.gov/datasets/treasury-reporting-rates-exchange/treasury-reporting-rates-of-exchange), add the conversion rate for the Peso to your environment variables.                                                                                                                                                                                                                                                                                                                                                          | Not Started   |
 | **Use a ternary expression to sort a user provided list and enable user configuration of the sort order**: Use the [sort](https://developer.hashicorp.com/terraform/language/functions/sort) and [reverse](https://developer.hashicorp.com/terraform/language/functions/reverse) functions in a ternary to sort a list by ascending or descending order based on a user input variable.                                                                                                                                                                                                                                        | Not Started   |
 
@@ -43,7 +45,30 @@ t init
 
 ## Observations / Learnings
 
-TODO
+* For challenge one I basically did copy and paste of the Exchange Rate code and just made minor adjustments to add cat facts functionality. No major issues, even though I have never coded in Go. I guess sometimes it's ok to just get lucky.
+
+### Challenge Outputs
+
+#### Challenge 1: Tag your ec2 instances with a random cat fact
+
+Output:
+
+```text
+data = <<EOT
+#!/bin/bash
+yum update -y
+amazon-linux-extras install docker -y
+service docker start
+usermod -a -G docker ec2-user
+docker run -d \
+  -e WORDPRESS_DB_HOST=xxxxxxxxxxx \
+  -e WORDPRESS_DB_USER=xxxxxxxxxxxx \
+  -e WORDPRESS_DB_PASSWORD=xxxxxxxxxxxxxxx \
+  -e CAD_EXCHANGE_RATE=1.352 \
+  -e CAT_FACT=Milk can give some cats diarrhea. \
+  -p 80:80 xxxxxxxxxxxx:xxxxxxxxxxxx
+EOT
+```
 
 
 # Week 2

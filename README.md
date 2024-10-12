@@ -7,6 +7,7 @@ Homework from https://github.com/massdriver-cloud/opentofu-foundations
     - [Challenge Outputs](#challenge-outputs)
       - [Challenge 1: Tag your ec2 instances with a random cat fact](#challenge-1-tag-your-ec2-instances-with-a-random-cat-fact)
       - [Challenge 2: Add the conversion rate for the Mexican Peso](#challenge-2-add-the-conversion-rate-for-the-mexican-peso)
+      - [Challenge 3: Use a ternary expression to sort a user provided list and enable user configuration of the sort order](#challenge-3-use-a-ternary-expression-to-sort-a-user-provided-list-and-enable-user-configuration-of-the-sort-order)
 - [Week 2](#week-2)
   - [Preparations](#preparations-1)
   - [Observations / Learnings](#observations--learnings-1)
@@ -27,7 +28,7 @@ Challenge Progress
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
 | **Tag your ec2 instances with a random [cat fact](https://catfact.ninja/)**: Using the ExchangeRate function as a guide, retrieve a cat fact and add it as a tag to your ec2 instance module.                                                                                                                                                                                                                                                                                                                                                                                                                                  | Done          |
 | **Add the conversion rate for the Mexican Peso**: Using the [api documentation](https://fiscaldata.treasury.gov/datasets/treasury-reporting-rates-exchange/treasury-reporting-rates-of-exchange), add the conversion rate for the Peso to your environment variables.                                                                                                                                                                                                                                                                                                                                                          | Done          |
-| **Use a ternary expression to sort a user provided list and enable user configuration of the sort order**: Use the [sort](https://developer.hashicorp.com/terraform/language/functions/sort) and [reverse](https://developer.hashicorp.com/terraform/language/functions/reverse) functions in a ternary to sort a list by ascending or descending order based on a user input variable.                                                                                                                                                                                                                                        | Not Started   |
+| **Use a ternary expression to sort a user provided list and enable user configuration of the sort order**: Use the [sort](https://developer.hashicorp.com/terraform/language/functions/sort) and [reverse](https://developer.hashicorp.com/terraform/language/functions/reverse) functions in a ternary to sort a list by ascending or descending order based on a user input variable.                                                                                                                                                                                                                                        | Done          |
 
 ## Preparations
 
@@ -48,6 +49,7 @@ t init
 
 * For challenge one I basically did copy and paste of the Exchange Rate code and just made minor adjustments to add cat facts functionality. No major issues, even though I have never coded in Go. I guess sometimes it's ok to just get lucky.
 * For the second challenge I decided to try and add a variable so that I can switch more easily between currencies. 
+* I was already partly familiar with the various functions based on earlier exercises, so challenge 3 was really straight forward. However, reading through all the available functions, I feel I am still missing out on a lot of potential, but I am sure the future challenges will remedy that!
 
 Using variables, from challenge 2 onward:
 
@@ -56,8 +58,6 @@ t plan -var-file=my_variables.tfvars
 
 t apply -var-file=my_variables.tfvars -auto-approve
 ```
-
-
 
 ### Challenge Outputs
 
@@ -112,6 +112,66 @@ docker run -d \
   -e EXCHANGE_RATE=19.655 \
   -e EXCHANGE_RATE_CURRENCY=Mexico-Peso \
   -e CAT_FACT=Approximately 40,000 people are bitten by cats in the U.S. annually. \
+  -p 80:80 xxxxxxxxxxxx:xxxxxxxxxxxx
+EOT
+```
+
+#### Challenge 3: Use a ternary expression to sort a user provided list and enable user configuration of the sort order
+
+First, update the local variables file (`my_variables.tfvars` in my case), with some initial values, for example:
+
+```text
+currency_selection = "Mexico-Peso"
+user_input = ["d", "e", "c", "a", "b"]
+user_input_sort_ascending = true
+```
+
+Execution, with the `user_input_sort_ascending` set to `true`:
+
+```shell
+t apply -var-file=my_variables.tfvars -auto-approve
+```
+
+Output:
+
+```text
+data = <<EOT
+#!/bin/bash
+yum update -y
+amazon-linux-extras install docker -y
+service docker start
+usermod -a -G docker ec2-user
+docker run -d \
+  -e WORDPRESS_DB_HOST=xxxxxxxxxxx \
+  -e WORDPRESS_DB_USER=xxxxxxxxxxxx \
+  -e WORDPRESS_DB_PASSWORD=xxxxxxxxxxxxxxx \
+  -e USER_INPUT=a,b,c,d,e \
+  -e EXCHANGE_RATE=19.655 \
+  -e EXCHANGE_RATE_CURRENCY=Mexico-Peso \
+  -e CAT_FACT=Long, muscular hind legs enable snow leopards to leap seven times their own body length in a single bound. \
+  -p 80:80 xxxxxxxxxxxx:xxxxxxxxxxxx
+EOT
+```
+
+Then, do another run with the `user_input_sort_ascending` set to `false`:
+
+Output:
+
+```text
+data = <<EOT
+#!/bin/bash
+yum update -y
+amazon-linux-extras install docker -y
+service docker start
+usermod -a -G docker ec2-user
+docker run -d \
+  -e WORDPRESS_DB_HOST=xxxxxxxxxxx \
+  -e WORDPRESS_DB_USER=xxxxxxxxxxxx \
+  -e WORDPRESS_DB_PASSWORD=xxxxxxxxxxxxxxx \
+  -e USER_INPUT=e,d,c,b,a \
+  -e EXCHANGE_RATE=19.655 \
+  -e EXCHANGE_RATE_CURRENCY=Mexico-Peso \
+  -e CAT_FACT=The cat's tail is used to maintain balance. \
   -p 80:80 xxxxxxxxxxxx:xxxxxxxxxxxx
 EOT
 ```

@@ -57,7 +57,7 @@ module "aws_instance" {
     Owner = "YourName"
   }
 
-  enable_ssh = var.enable_ssh
+  enable_ssh     = var.enable_ssh
   home_directory = var.home_directory
 }
 

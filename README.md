@@ -4,6 +4,7 @@ Homework from https://github.com/massdriver-cloud/opentofu-foundations
 - [Week 4](#week-4)
   - [Preparations](#preparations)
   - [Observations / Learnings](#observations--learnings)
+    - [Challenge 1 - SSH into an Instance](#challenge-1---ssh-into-an-instance)
 - [Week 3](#week-3)
   - [Preparations](#preparations-1)
   - [Observations / Learnings](#observations--learnings-1)
@@ -27,13 +28,13 @@ Homework from https://github.com/massdriver-cloud/opentofu-foundations
 
 Challenge Progress
 
-| Challenge                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Progress      |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
-| **SSH into an Instance**: Use the SSH key to access one of the web instances.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Not Started   |
-| **Use an Autoscaling Group**: Instead of managing the EC2 instances with a `count` convert it to an [AWS Autoscaling Group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group).                                                                                                                                                                                                                                                                                                                                                                                                    | Not Started   |
-| **Change Security Group Rules**: Update your security group rules to use the recommended [`aws_vpc_security_group_ingress_rule`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_ingress_rule) and [`aws_vpc_security_group_gress_rule`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule).                                                                                                                                                                                                                           | Not Started   |
-| **Improve Database Security**: Instead of giving database access to the entire VPC, only give access to the security group of the EC2 instance. Even better, add a conditional to the database module that, only if enabled, will grant access to the entire VPC.                                                                                                                                                                                                                                                                                                                                                              | Not Started   |
-| **Create a Load Balancer**: Place a load balancer in front of the EC2 instance autoscaling group. NOTE: elastic load balancers do not have a free tier. This will incur costs in your AWS account.                                                                                                                                                                                                                                                                                                                                                                                                                             | Not Started   |
+| Challenge                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Progress    |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
+| **SSH into an Instance**: Use the SSH key to access one of the web instances.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Done        |
+| **Use an Autoscaling Group**: Instead of managing the EC2 instances with a `count` convert it to an [AWS Autoscaling Group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group).                                                                                                                                                                                                                                                                                                                                                                                                    | Not Started |
+| **Change Security Group Rules**: Update your security group rules to use the recommended [`aws_vpc_security_group_ingress_rule`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_ingress_rule) and [`aws_vpc_security_group_gress_rule`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule).                                                                                                                                                                                                                           | Not Started |
+| **Improve Database Security**: Instead of giving database access to the entire VPC, only give access to the security group of the EC2 instance. Even better, add a conditional to the database module that, only if enabled, will grant access to the entire VPC.                                                                                                                                                                                                                                                                                                                                                              | Not Started |
+| **Create a Load Balancer**: Place a load balancer in front of the EC2 instance autoscaling group. NOTE: elastic load balancers do not have a free tier. This will incur costs in your AWS account.                                                                                                                                                                                                                                                                                                                                                                                                                             | Not Started |
 
 ## Preparations
 
@@ -47,12 +48,66 @@ alias t=...
 
 # Init
 cd week-4/code
-t init
+t init -upgrade
+
+# Set our AWS profile for calling AWS API's
+export AWS_PROFILE=...
 ```
 
 ## Observations / Learnings
 
-TODO
+```shell
+# Basic plan/apply sequence:
+
+t apply "my_plan" -auto-approve
+
+t apply "my_plan"
+```
+
+### Challenge 1 - SSH into an Instance
+
+* The default SSH setting was set to `true` in the EC2 instance module. For better control, I added my own variables in the root directory and added a `variables.tf` file where the default value is set to `false`. In the root `main.tf` file I then added the `enable_ssh` parameter to pass my preferred value to the module.
+* I realized also that I need the SSH private key in order to SSH into the instance. Best practice is to mask sensitive material, so whenever I run the modified code with the sensitive data I would get the following:
+
+```shell
+t apply "my_plan"                                
+module.aws_instance.aws_instance.this[0]: Modifying... [id=i-0e33f522ae0ff812c]
+module.aws_instance.aws_instance.this[0]: Modifications complete after 4s [id=i-0e33f522ae0ff812c]
+
+Apply complete! Resources: 0 added, 1 changed, 0 destroyed.
+
+Outputs:
+
+db_endpoint = "week4-db.cmxwptyc08tr.us-west-2.rds.amazonaws.com:3306"
+instance_public_ip = [
+  [
+    "52.36.77.40",
+  ],
+]
+private_key = <sensitive>
+```
+
+* I resolved the SSH private key issue by adding a variable for my home directory and writing the private key to a file:
+
+```shell
+export TF_VAR_home_directory=$HOME
+
+```
+
+* Before running `t plan` again, I had to run `t init -upgrade` again as I needed to use additional providers. I then recreated the stack from scratch.
+  * In retrospect, I should have first checked if I could just apply the changes, as the `destroy` also deleted the DB instance. When I have time I will try to revisit this part to try add add the SSH private key to the EC2 insatnce without the complete re-deployment
+
+```shell
+# Final plan, with SSH enabled and expecting the SSH key to be written to a local file
+t plan -var-file=my_variables.tfvars -out=my_plan 
+
+t apply "my_plan"
+
+# Test SSH access
+ssh -i ~/.ssh/opentofu_foundations_temporary_key.pem ec2-user@52.35.154.160 whoami
+ec2-user
+
+```
 
 # Week 3
 

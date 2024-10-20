@@ -97,6 +97,21 @@ resource "aws_key_pair" "ssh" {
   public_key = tls_private_key.ssh[0].public_key_openssh
 }
 
+resource "local_file" "private_key" {
+  count = var.enable_ssh ? 1 : 0
+  content = tls_private_key.ssh[0].private_key_pem
+  filename = "${var.home_directory}/.ssh/opentofu_foundations_temporary_key.pem"
+}
+
+resource "null_resource" "set_permission" {
+  count = var.enable_ssh ? 1 : 0
+  provisioner "local-exec" {
+    command = "chmod 0600 ${local_file.private_key[0].filename}"
+  }
+  
+  depends_on = [local_file.private_key]
+}
+
 resource "aws_security_group_rule" "ssh" {
   count = var.enable_ssh ? 1 : 0
   description       = "enable SSH access"

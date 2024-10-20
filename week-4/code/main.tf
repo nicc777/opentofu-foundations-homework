@@ -56,6 +56,9 @@ module "aws_instance" {
   tags = {
     Owner = "YourName"
   }
+
+  enable_ssh = var.enable_ssh
+  home_directory = var.home_directory
 }
 
 variable "image" {

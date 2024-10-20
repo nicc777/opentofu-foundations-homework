@@ -1,4 +1,4 @@
-resource random_id index {
+resource "random_id" "index" {
   byte_length = 2
 }
 
@@ -13,7 +13,7 @@ data "aws_ami" "latest_amzn2_ami" {
 
 data "aws_vpc" "default" {
   filter {
-    name = "isDefault"
+    name   = "isDefault"
     values = ["true"]
   }
 }
@@ -38,14 +38,18 @@ locals {
       from_port   = 80
       to_port     = 80
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_block  = "0.0.0.0/0"
+      description = "HTTP Access"
+      map         = ""
     }
     "Allow all outbound traffic" = {
       type        = "egress"
       from_port   = 0
       to_port     = 0
       protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_block  = "0.0.0.0/0"
+      description = "ANY egress"
+      map         = ""
     }
   }
 }
@@ -74,22 +78,7 @@ resource "aws_launch_template" "this" {
     security_groups             = [aws_security_group.this.id]
   }
 
-  # lifecycle {
-  #   ignore_changes = [ image_id ]
-  # }
 }
-
-# resource "aws_instance" "this" {
-#   count = 1
-#   launch_template {
-#     id      = aws_launch_template.this.id
-#     version = "$Latest"
-#   }
-
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
 
 resource "aws_autoscaling_group" "this" {
   launch_template {
@@ -115,21 +104,42 @@ resource "aws_autoscaling_group" "this" {
 }
 
 resource "aws_security_group" "this" {
-  name        = "${var.name_prefix}-web-service"
-  description = var.description
-  tags        = var.tags
+  name        = "${var.name_prefix}-wordpress"
+  description = "Allow inbound traffic"
+  vpc_id      = data.aws_vpc.default.id
+  tags = {
+    Name = "${var.name_prefix}-wordpress_server_access"
+  }
 }
 
-resource "aws_security_group_rule" "this" {
-  for_each = local.security_group_rules
-
+resource "aws_vpc_security_group_ingress_rule" "this" {
+  for_each          = { for rule in local.security_group_rules : rule.map => rule if rule.type == "ingress" }
   security_group_id = aws_security_group.this.id
-  description       = each.key
-  type              = each.value.type
+  cidr_ipv4         = each.value.cidr_block
   from_port         = each.value.from_port
+  ip_protocol       = each.value.protocol
   to_port           = each.value.to_port
-  protocol          = each.value.protocol
-  cidr_blocks       = each.value.cidr_blocks
+  description       = each.value.description
+}
+
+resource "aws_vpc_security_group_ingress_rule" "wordpress_allow_ssh_ipv4" {
+  count             = var.enable_ssh ? 1 : 0
+  security_group_id = aws_security_group.this.id
+  cidr_ipv4         = var.trusted_cidr_for_ssh_access
+  from_port         = 22
+  ip_protocol       = "tcp"
+  to_port           = 22
+  description       = "User enabled SSH access"
+}
+
+resource "aws_vpc_security_group_egress_rule" "wordpress_allow_all_traffic_ipv4" {
+  for_each          = { for rule in local.security_group_rules : rule.map => rule if rule.type == "egress" }
+  security_group_id = aws_security_group.this.id
+  cidr_ipv4         = each.value.cidr_block
+  from_port         = each.value.from_port
+  ip_protocol       = each.value.protocol
+  to_port           = each.value.to_port
+  description       = each.value.description
 }
 
 resource "tls_private_key" "ssh" {
@@ -157,15 +167,4 @@ resource "null_resource" "set_permission" {
   }
 
   depends_on = [local_file.private_key]
-}
-
-resource "aws_security_group_rule" "ssh" {
-  count             = var.enable_ssh ? 1 : 0
-  description       = "enable SSH access"
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.this.id
 }

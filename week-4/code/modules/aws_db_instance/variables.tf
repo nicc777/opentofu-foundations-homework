@@ -53,3 +53,9 @@ variable "ingress_cidr_blocks" {
   type        = list(string)
   default     = []
 }
+
+variable "source_security_group_id" {
+  description = "ID of the source security group. If set, only access from this security group will be allowed, else it will be allowed the VPC CIDR block as anything in var.ingress_cidr_blocks"
+  type        = string
+  default     = null
+}

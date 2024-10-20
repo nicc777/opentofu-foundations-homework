@@ -40,8 +40,8 @@ variable "enable_ssh" {
 
 variable "home_directory" {
   description = "Home directory which will be used to write out the SSH private key, if enable_ssh is set to true"
-  type = string
-  default = "/dev/null"
+  type        = string
+  default     = "/dev/null"
 }
 
 variable "trusted_cidr_for_ssh_access" {
@@ -50,4 +50,10 @@ variable "trusted_cidr_for_ssh_access" {
   description = "A trusted CIDR's to allow HTTP access to the WordPress server."
   type        = string
   default     = "0.0.0.0/0"
+}
+
+variable "tight_db_access" {
+  description = "If set to true, the DB access security group will only allow access from the instance security group"
+  type        = bool
+  default     = false
 }

@@ -9,7 +9,6 @@ terraform {
 
 provider "aws" {
   region = "us-west-2"
-
   default_tags {
     tags = {
       environment = "dev"
@@ -20,26 +19,23 @@ provider "aws" {
 
 # Module for Database Instance
 module "aws_db_instance" {
-  source = "./modules/aws_db_instance"
-
+  source      = "./modules/aws_db_instance"
   name_prefix = "week4-db"
   db_name     = "wordpress"
   username    = "admin"
   password    = "yourpassword" # In production, use a secure method for passwords
-
   tags = {
     Owner = "YourName"
   }
+  source_security_group_id = module.aws_instance.restrict_db_access ? module.aws_instance.security_group_id : null
 }
 
 # Module for EC2 Instance
 module "aws_instance" {
-  source = "./modules/aws_instance"
-
+  source        = "./modules/aws_instance"
   name_prefix   = "week4-instance"
   instance_type = "t2.micro"
-
-  user_data = <<-EOF
+  user_data     = <<-EOF
                 #!/bin/bash
                 yum update -y
                 amazon-linux-extras install docker -y
@@ -56,10 +52,10 @@ module "aws_instance" {
   tags = {
     Owner = "YourName"
   }
-
   enable_ssh                  = var.enable_ssh
   home_directory              = var.home_directory
   trusted_cidr_for_ssh_access = var.trusted_cidr_for_ssh_access
+  tight_db_access             = var.tight_db_access
 }
 
 variable "image" {
@@ -67,7 +63,6 @@ variable "image" {
     name = string
     tag  = string
   })
-
   default = {
     name = "wordpress"
     tag  = "latest"

@@ -4,6 +4,6 @@ output "db_endpoint" {
 }
 
 output "private_key" {
-  value = var.enable_ssh ? module.aws_instance.private_key : ""
+  value     = var.enable_ssh ? module.aws_instance.private_key : ""
   sensitive = true
 }

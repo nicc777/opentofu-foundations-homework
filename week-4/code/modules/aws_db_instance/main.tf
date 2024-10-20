@@ -19,37 +19,55 @@ resource "aws_db_instance" "this" {
 
   tags = var.tags
 
-  lifecycle {
-    prevent_destroy = true
-  }
+  # lifecycle {
+  #   prevent_destroy = true
+  # }
 }
 
-locals {
-  allow_cidr_blocks = concat([data.aws_vpc.default.cidr_block], var.ingress_cidr_blocks)
-}
 
 resource "aws_security_group" "this" {
-  name        = "${var.name_prefix}-mariadb"
-  description = "Allow access to MariaDB"
-
-  dynamic "ingress" {
-    for_each = local.allow_cidr_blocks
-
-    content {
-      from_port   = 3306
-      to_port     = 3306
-      protocol    = "tcp"
-      cidr_blocks = [ingress.value]
-    }
+  name        = "${var.name_prefix}-wordpress"
+  description = "Allow inbound traffic"
+  vpc_id      = data.aws_vpc.default.id
+  tags = {
+    Name = "${var.name_prefix}-wordpress_server_access"
   }
+}
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_ingress_rule" "vpc_cidr_access" {
+  count             = var.source_security_group_id != "" && var.source_security_group_id != null ? 0 : 1
+  security_group_id = aws_security_group.this.id
+  cidr_ipv4         = data.aws_vpc.default.cidr_block
+  from_port         = 3306
+  ip_protocol       = "tcp"
+  to_port           = 3306
+  description       = "DB access from VPC CIDR"
+}
 
-  tags = var.tags
+resource "aws_security_group_rule" "ingress" {
+  count                    = var.source_security_group_id != "" && var.source_security_group_id != null ? 1 : 0
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.this.id
+  source_security_group_id = var.source_security_group_id
+}
+
+resource "aws_vpc_security_group_ingress_rule" "user_cidr_access" {
+  for_each          = length(var.ingress_cidr_blocks) > 0 ? { for idx, val in var.ingress_cidr_blocks : idx => val } : {}
+  security_group_id = aws_security_group.this.id
+  cidr_ipv4         = each.value
+  from_port         = 3306
+  ip_protocol       = "tcp"
+  to_port           = 3306
+  description       = "DB access from user supplied CIDR block ${each.value}"
+}
+
+resource "aws_vpc_security_group_egress_rule" "db_egress" {
+  security_group_id = aws_security_group.this.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
+  description       = "Allow egress to ANY"
 }
 

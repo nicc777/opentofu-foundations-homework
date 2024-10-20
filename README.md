@@ -8,6 +8,7 @@ Homework from https://github.com/massdriver-cloud/opentofu-foundations
     - [Challenge 2: Use an Autoscaling Group](#challenge-2-use-an-autoscaling-group)
     - [Challenge 3: Change Security Group Rules](#challenge-3-change-security-group-rules)
     - [Challenge 4: Improve Database Security](#challenge-4-improve-database-security)
+    - [Challenge 5: Create a Load Balancer](#challenge-5-create-a-load-balancer)
 - [Week 3](#week-3)
   - [Preparations](#preparations-1)
   - [Observations / Learnings](#observations--learnings-1)
@@ -37,7 +38,7 @@ Challenge Progress
 | **Use an Autoscaling Group**: Instead of managing the EC2 instances with a `count` convert it to an [AWS Autoscaling Group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group).                                                                                                                                                                                                                                                                                                                                                                                                    | Done        |
 | **Change Security Group Rules**: Update your security group rules to use the recommended [`aws_vpc_security_group_ingress_rule`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_ingress_rule) and [`aws_vpc_security_group_gress_rule`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule).                                                                                                                                                                                                                           | Done        |
 | **Improve Database Security**: Instead of giving database access to the entire VPC, only give access to the security group of the EC2 instance. Even better, add a conditional to the database module that, only if enabled, will grant access to the entire VPC.                                                                                                                                                                                                                                                                                                                                                              | Done        |
-| **Create a Load Balancer**: Place a load balancer in front of the EC2 instance autoscaling group. NOTE: elastic load balancers do not have a free tier. This will incur costs in your AWS account.                                                                                                                                                                                                                                                                                                                                                                                                                             | Not Started |
+| **Create a Load Balancer**: Place a load balancer in front of the EC2 instance autoscaling group. NOTE: elastic load balancers do not have a free tier. This will incur costs in your AWS account.                                                                                                                                                                                                                                                                                                                                                                                                                             | Done        |
 
 ## Preparations
 
@@ -151,6 +152,36 @@ ec2-user
     * TEST
     * Destroy the old DB instance
  
+
+### Challenge 5: Create a Load Balancer
+
+Simply added the Application load balancer configuration and tested:
+
+```shell
+curl -vvv http://my-alb-395924136.us-west-2.elb.amazonaws.com
+*   Trying 54.149.32.22:80...
+* Connected to my-alb-395924136.us-west-2.elb.amazonaws.com (54.149.32.22) port 80 (#0)
+> GET / HTTP/1.1
+> Host: my-alb-395924136.us-west-2.elb.amazonaws.com
+> User-Agent: curl/7.81.0
+> Accept: */*
+> 
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 302 Found
+< Date: Sun, 20 Oct 2024 14:13:06 GMT
+< Content-Type: text/html; charset=UTF-8
+< Content-Length: 0
+< Connection: keep-alive
+< Server: Apache/2.4.62 (Debian)
+< X-Powered-By: PHP/8.2.24
+< Expires: Wed, 11 Jan 1984 05:00:00 GMT
+< Cache-Control: no-cache, must-revalidate, max-age=0
+< X-Redirect-By: WordPress
+< Location: http://my-alb-395924136.us-west-2.elb.amazonaws.com/wp-admin/install.php
+< 
+* Connection #0 to host my-alb-395924136.us-west-2.elb.amazonaws.com left intact
+```
+
 # Week 3
 
 Challenge Progress

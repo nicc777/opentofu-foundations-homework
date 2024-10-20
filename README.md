@@ -1,24 +1,58 @@
 
 Homework from https://github.com/massdriver-cloud/opentofu-foundations
 
-- [Week 3](#week-3)
+- [Week 4](#week-4)
   - [Preparations](#preparations)
   - [Observations / Learnings](#observations--learnings)
+- [Week 3](#week-3)
+  - [Preparations](#preparations-1)
+  - [Observations / Learnings](#observations--learnings-1)
     - [Challenge Outputs](#challenge-outputs)
       - [Challenge 1: Tag your ec2 instances with a random cat fact](#challenge-1-tag-your-ec2-instances-with-a-random-cat-fact)
       - [Challenge 2: Add the conversion rate for the Mexican Peso](#challenge-2-add-the-conversion-rate-for-the-mexican-peso)
       - [Challenge 3: Use a ternary expression to sort a user provided list and enable user configuration of the sort order](#challenge-3-use-a-ternary-expression-to-sort-a-user-provided-list-and-enable-user-configuration-of-the-sort-order)
 - [Week 2](#week-2)
-  - [Preparations](#preparations-1)
-  - [Observations / Learnings](#observations--learnings-1)
+  - [Preparations](#preparations-2)
+  - [Observations / Learnings](#observations--learnings-2)
     - [Testing for a new version of a module](#testing-for-a-new-version-of-a-module)
 - [Week 1](#week-1)
-  - [Preparations](#preparations-2)
+  - [Preparations](#preparations-3)
   - [Various other Changes or Improvements](#various-other-changes-or-improvements)
-  - [Observations / Learnings](#observations--learnings-2)
+  - [Observations / Learnings](#observations--learnings-3)
     - [Getting the EC2 instance DNS name](#getting-the-ec2-instance-dns-name)
     - [DB Access](#db-access)
 
+
+# Week 4
+
+Challenge Progress
+
+| Challenge                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Progress      |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| **SSH into an Instance**: Use the SSH key to access one of the web instances.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Not Started   |
+| **Use an Autoscaling Group**: Instead of managing the EC2 instances with a `count` convert it to an [AWS Autoscaling Group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group).                                                                                                                                                                                                                                                                                                                                                                                                    | Not Started   |
+| **Change Security Group Rules**: Update your security group rules to use the recommended [`aws_vpc_security_group_ingress_rule`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_ingress_rule) and [`aws_vpc_security_group_gress_rule`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule).                                                                                                                                                                                                                           | Not Started   |
+| **Improve Database Security**: Instead of giving database access to the entire VPC, only give access to the security group of the EC2 instance. Even better, add a conditional to the database module that, only if enabled, will grant access to the entire VPC.                                                                                                                                                                                                                                                                                                                                                              | Not Started   |
+| **Create a Load Balancer**: Place a load balancer in front of the EC2 instance autoscaling group. NOTE: elastic load balancers do not have a free tier. This will incur costs in your AWS account.                                                                                                                                                                                                                                                                                                                                                                                                                             | Not Started   |
+
+## Preparations
+
+Basic start:
+
+```shell
+# Assuming the repo is checked out and the current working directory is the root of the project
+
+# First, set the alias to tofu to where ever the binary is
+alias t=...
+
+# Init
+cd week-4/code
+t init
+```
+
+## Observations / Learnings
+
+TODO
 
 # Week 3
 
@@ -41,7 +75,7 @@ Basic start:
 alias t=...
 
 # Init
-cd week-1/code/functions
+cd week-3/code/functions
 t init
 ```
 

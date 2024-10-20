@@ -6,6 +6,7 @@ Homework from https://github.com/massdriver-cloud/opentofu-foundations
   - [Observations / Learnings](#observations--learnings)
     - [Challenge 1 - SSH into an Instance](#challenge-1---ssh-into-an-instance)
     - [Challenge 2: Use an Autoscaling Group](#challenge-2-use-an-autoscaling-group)
+  - [Challenge 3: Change Security Group Rules](#challenge-3-change-security-group-rules)
 - [Week 3](#week-3)
   - [Preparations](#preparations-1)
   - [Observations / Learnings](#observations--learnings-1)
@@ -33,7 +34,7 @@ Challenge Progress
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
 | **SSH into an Instance**: Use the SSH key to access one of the web instances.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Done        |
 | **Use an Autoscaling Group**: Instead of managing the EC2 instances with a `count` convert it to an [AWS Autoscaling Group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group).                                                                                                                                                                                                                                                                                                                                                                                                    | Done        |
-| **Change Security Group Rules**: Update your security group rules to use the recommended [`aws_vpc_security_group_ingress_rule`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_ingress_rule) and [`aws_vpc_security_group_gress_rule`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule).                                                                                                                                                                                                                           | Not Started |
+| **Change Security Group Rules**: Update your security group rules to use the recommended [`aws_vpc_security_group_ingress_rule`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_ingress_rule) and [`aws_vpc_security_group_gress_rule`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule).                                                                                                                                                                                                                           | Done        |
 | **Improve Database Security**: Instead of giving database access to the entire VPC, only give access to the security group of the EC2 instance. Even better, add a conditional to the database module that, only if enabled, will grant access to the entire VPC.                                                                                                                                                                                                                                                                                                                                                              | Not Started |
 | **Create a Load Balancer**: Place a load balancer in front of the EC2 instance autoscaling group. NOTE: elastic load balancers do not have a free tier. This will incur costs in your AWS account.                                                                                                                                                                                                                                                                                                                                                                                                                             | Not Started |
 
@@ -129,6 +130,11 @@ ec2-54-187-39-247.us-west-2.compute.amazonaws.com
 ssh -i ~/.ssh/opentofu_foundations_temporary_key.pem ec2-user@ec2-54-187-39-247.us-west-2.compute.amazonaws.com whoami
 ec2-user
 ```
+
+## Challenge 3: Change Security Group Rules
+
+* Basically copied what was learned from week 1
+* I had to figure out how to add a conditional to a `for_each` loop
 
 # Week 3
 

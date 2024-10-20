@@ -57,8 +57,9 @@ module "aws_instance" {
     Owner = "YourName"
   }
 
-  enable_ssh     = var.enable_ssh
-  home_directory = var.home_directory
+  enable_ssh                  = var.enable_ssh
+  home_directory              = var.home_directory
+  trusted_cidr_for_ssh_access = var.trusted_cidr_for_ssh_access
 }
 
 variable "image" {

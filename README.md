@@ -1,32 +1,53 @@
 
 Homework from https://github.com/massdriver-cloud/opentofu-foundations
 
-- [Week 4](#week-4)
+- [Week 5](#week-5)
   - [Preparations](#preparations)
   - [Observations / Learnings](#observations--learnings)
+- [Week 4](#week-4)
+  - [Preparations](#preparations-1)
+  - [Observations / Learnings](#observations--learnings-1)
     - [Challenge 1 - SSH into an Instance](#challenge-1---ssh-into-an-instance)
     - [Challenge 2: Use an Autoscaling Group](#challenge-2-use-an-autoscaling-group)
     - [Challenge 3: Change Security Group Rules](#challenge-3-change-security-group-rules)
     - [Challenge 4: Improve Database Security](#challenge-4-improve-database-security)
     - [Challenge 5: Create a Load Balancer](#challenge-5-create-a-load-balancer)
 - [Week 3](#week-3)
-  - [Preparations](#preparations-1)
-  - [Observations / Learnings](#observations--learnings-1)
+  - [Preparations](#preparations-2)
+  - [Observations / Learnings](#observations--learnings-2)
     - [Challenge Outputs](#challenge-outputs)
       - [Challenge 1: Tag your ec2 instances with a random cat fact](#challenge-1-tag-your-ec2-instances-with-a-random-cat-fact)
       - [Challenge 2: Add the conversion rate for the Mexican Peso](#challenge-2-add-the-conversion-rate-for-the-mexican-peso)
       - [Challenge 3: Use a ternary expression to sort a user provided list and enable user configuration of the sort order](#challenge-3-use-a-ternary-expression-to-sort-a-user-provided-list-and-enable-user-configuration-of-the-sort-order)
 - [Week 2](#week-2)
-  - [Preparations](#preparations-2)
-  - [Observations / Learnings](#observations--learnings-2)
+  - [Preparations](#preparations-3)
+  - [Observations / Learnings](#observations--learnings-3)
     - [Testing for a new version of a module](#testing-for-a-new-version-of-a-module)
 - [Week 1](#week-1)
-  - [Preparations](#preparations-3)
+  - [Preparations](#preparations-4)
   - [Various other Changes or Improvements](#various-other-changes-or-improvements)
-  - [Observations / Learnings](#observations--learnings-3)
+  - [Observations / Learnings](#observations--learnings-4)
     - [Getting the EC2 instance DNS name](#getting-the-ec2-instance-dns-name)
     - [DB Access](#db-access)
 
+
+# Week 5
+
+Challenge Progress
+
+| Challenge                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Progress    |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
+| _**migrate state**_: When you created the state store, _its_ state is stored locally. Migrate your state storage bucket and table to use its own bucket for state storage.                                                                                                                                                                                                                                                                                                                                                                                                                                                     | In Progress |
+| _**Add a GitHub Action to apply your configuration**_. Should it be applied before or after merging into main?                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | In Progress |
+| _**Integrate terraform-docs**_ to update your readme either as a github action or a pre-commit.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | In Progress |
+
+## Preparations
+
+TODO
+
+## Observations / Learnings
+
+TODO
 
 # Week 4
 

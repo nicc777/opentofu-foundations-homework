@@ -7,10 +7,10 @@ terraform {
   }
 
   backend "s3" {
-    # bucket         = "opentofu-foundations-opentofu-state-yc5m" # your bucket name here
-    # key            = "wordpress/terraform.tfstate"              # Change the path per root module
-    # dynamodb_table = "opentofu-foundations-opentofu-locks-yc5m" # your bucket name here
-    # region         = "us-west-2"
+    bucket         = "week-5-opentofu-state-d6zy"
+    key            = "wordpress/terraform.tfstate" # Change the path per root module
+    dynamodb_table = "week-5-opentofu-locks-d6zy"    # your bucket name here
+    region         = "us-west-2"
   }
 }
 
@@ -51,7 +51,7 @@ module "aws_db_instance" {
   password    = "yourpassword" # In production, use a secure method for passwords
 
   tags = {
-    Owner = "YourName"
+    Owner = "Nico"
   }
 }
 
@@ -77,6 +77,6 @@ module "aws_instance" {
               EOF
 
   tags = {
-    Owner = "YourName"
+    Owner = "Nico"
   }
 }

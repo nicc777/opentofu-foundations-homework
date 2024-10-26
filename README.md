@@ -5,6 +5,7 @@ Homework from https://github.com/massdriver-cloud/opentofu-foundations
   - [Preparations](#preparations)
   - [Observations / Learnings](#observations--learnings)
     - [Challenge 1 - migrate state](#challenge-1---migrate-state)
+    - [Challenge 2 and 3](#challenge-2-and-3)
 - [Week 4](#week-4)
   - [Preparations](#preparations-1)
   - [Observations / Learnings](#observations--learnings-1)
@@ -97,6 +98,14 @@ t plan -var-file=my_variables.tfvars -out=my_plan
 
 t apply "my_plan"
 ```
+
+### Challenge 2 and 3
+
+I have to read up a lot more on the GitHub actions integration as it seems a lot more involved. I would like to do the right thing from teh start, which include using OIDC for authenticating to AWS. This would also require to setup a user with minimal credentials required for the exercise, but this in itself is a tremendously huge exercise, as I do not know what API calls will be required. 
+
+Thus far my attempts to see if there is a way to get the permissions from the available commands and provider has been unsuccessful and a trial and error exercise may take way to long.
+
+I am parking these exercises for now.
 
 # Week 4
 

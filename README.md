@@ -4,6 +4,7 @@ Homework from https://github.com/massdriver-cloud/opentofu-foundations
 - [Week 5](#week-5)
   - [Preparations](#preparations)
   - [Observations / Learnings](#observations--learnings)
+    - [Challenge 1 - migrate state](#challenge-1---migrate-state)
 - [Week 4](#week-4)
   - [Preparations](#preparations-1)
   - [Observations / Learnings](#observations--learnings-1)
@@ -37,17 +38,65 @@ Challenge Progress
 
 | Challenge                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Progress    |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
-| _**migrate state**_: When you created the state store, _its_ state is stored locally. Migrate your state storage bucket and table to use its own bucket for state storage.                                                                                                                                                                                                                                                                                                                                                                                                                                                     | In Progress |
+| _**migrate state**_: When you created the state store, _its_ state is stored locally. Migrate your state storage bucket and table to use its own bucket for state storage.                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Done        |
 | _**Add a GitHub Action to apply your configuration**_. Should it be applied before or after merging into main?                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | In Progress |
 | _**Integrate terraform-docs**_ to update your readme either as a github action or a pre-commit.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | In Progress |
 
 ## Preparations
 
-TODO
+Basic start:
+
+```shell
+# Assuming the repo is checked out and the current working directory is the root of the project
+
+# First, set the alias to tofu to where ever the binary is
+alias t=...
+
+# Init
+cd week-5/code/wordpress
+t init -upgrade
+
+# Set our AWS profile for calling AWS API's -
+export AWS_PROFILE=...
+
+# Run this regularly to keep things look nice
+t fmt -recursive
+```
 
 ## Observations / Learnings
 
-TODO
+### Challenge 1 - migrate state
+
+* I will need to spend some more time on this topics as I started to read through some of the initial documentation to setup an OIDC type user. For now I am going to use an AWS access key for the exercise, and revoke the keys after the exercises is completed.
+* I started by using an existing bucket. From the [documentation](https://opentofu.org/docs/language/settings/backends/s3/) I proceeded also to enable bucket versioning.
+* It is very annoying that you cannot use dynamic data for the backend configuration!
+* Issues
+  * I battled a long time to get the `wordpress` project to `init`, left alone `plan` and `apply`, as I got errors suggesting that the bucket does not exist.
+  * I eventually deleted everything manually, including all `.terraform*` resources and started from scratch. Magically it started to work.
+
+Commands
+
+```shell
+# Assuming the repo root directory is the starting point
+cd week-5/code/my_state
+
+t init -upgrade
+
+t plan -var-file=my_variables.tfvars -out=my_plan
+
+t apply "my_plan"
+
+# The update ../wordpress/main.tf with the S3 bucket name created just now
+
+# Proceed...
+cd ../wordpress
+
+t init -upgrade
+
+t plan -var-file=my_variables.tfvars -out=my_plan
+
+t apply "my_plan"
+```
 
 # Week 4
 
